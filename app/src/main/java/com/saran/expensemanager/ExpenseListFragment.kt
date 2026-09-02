@@ -216,21 +216,31 @@ class ExpenseListFragment : Fragment() {
     }
 
     private fun getFilteredList(): List<Expense> {
-        val query = binding.etSearch.text.toString().trim().lowercase()
+        // Natural-language hints ("food above 5000 in august") lift out amount/category/date
+        // filters; whatever's left over still does plain substring matching, so an ordinary
+        // search like "d-mart" behaves exactly as before.
+        val nl = NaturalSearchParser.parse(binding.etSearch.text.toString())
+        val query = nl.remainingText
         val selectedCat = filterCategories[binding.spinnerCategory.selectedItemPosition]
+        val effectiveCat = if (selectedCat != "All") selectedCat else nl.category
+
         return allExpenses.filter { e ->
-            val catOk = selectedCat == "All" || e.category == selectedCat
+            val catOk = effectiveCat == null || e.category == effectiveCat
             val queryOk = query.isEmpty() ||
                     e.title.lowercase().contains(query) ||
                     e.category.lowercase().contains(query) ||
                     e.notes.lowercase().contains(query)
+            val amountOk = (nl.amountAbove == null || e.amount > nl.amountAbove) &&
+                    (nl.amountBelow == null || e.amount < nl.amountBelow)
+            val nlDateOk = (nl.dateExact == null || e.date == nl.dateExact) &&
+                    (nl.datePrefix == null || e.date.startsWith(nl.datePrefix))
             val dateOk = when {
                 fromDate.isNotEmpty() && toDate.isNotEmpty() -> e.date >= fromDate && e.date <= toDate
                 fromDate.isNotEmpty() -> e.date >= fromDate
                 toDate.isNotEmpty() -> e.date <= toDate
                 else -> true
             }
-            catOk && queryOk && dateOk
+            catOk && queryOk && amountOk && nlDateOk && dateOk
         }
     }
 

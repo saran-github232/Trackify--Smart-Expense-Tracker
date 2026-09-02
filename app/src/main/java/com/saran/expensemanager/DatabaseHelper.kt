@@ -269,6 +269,18 @@ class DatabaseHelper(context: Context) :
         return map
     }
 
+    fun getCurrentMonthCategoryTotals(): Map<String, Double> {
+        val cal = Calendar.getInstance()
+        val prefix = "%04d-%02d".format(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1)
+        val map = LinkedHashMap<String, Double>()
+        readableDatabase.rawQuery(
+            "SELECT $COL_CATEGORY, SUM($COL_AMOUNT) FROM $TABLE WHERE $COL_DATE LIKE ? " +
+                    "GROUP BY $COL_CATEGORY ORDER BY SUM($COL_AMOUNT) DESC",
+            arrayOf("$prefix%")
+        ).use { c -> while (c.moveToNext()) map[c.getString(0)] = c.getDouble(1) }
+        return map
+    }
+
     fun getCategoryTotals(): Map<String, Double> {
         val map = LinkedHashMap<String, Double>()
         readableDatabase.rawQuery(
@@ -290,6 +302,15 @@ class DatabaseHelper(context: Context) :
             arrayOf(weekStart)
         ).use { return if (it.moveToFirst()) it.getDouble(0) else 0.0 }
     }
+
+    /** 12 entries (Jan..Dec) of that year's total spend, for a yearly report. */
+    fun getMonthlyTotalsForYear(year: Int): List<Double> =
+        (1..12).map { month ->
+            val prefix = "%04d-%02d".format(year, month)
+            readableDatabase.rawQuery(
+                "SELECT COALESCE(SUM($COL_AMOUNT), 0) FROM $TABLE WHERE $COL_DATE LIKE ?", arrayOf("$prefix%")
+            ).use { if (it.moveToFirst()) it.getDouble(0) else 0.0 }
+        }
 
     fun getYearTotal(): Double {
         val year = "%04d".format(Calendar.getInstance()[Calendar.YEAR])

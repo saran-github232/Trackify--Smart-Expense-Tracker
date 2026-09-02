@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,7 +18,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.saran.expensemanager.databinding.FragmentSettingsBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SettingsFragment : Fragment() {
 
@@ -53,6 +60,116 @@ class SettingsFragment : Fragment() {
         setupShakeSection()
         setupSheetSyncSection()
         setupCurrencySection()
+        setupDataToolsSection()
+    }
+
+    // ── Import / Export / Backup / Restore ───────────────────────────────────
+
+    private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { importCsv(it) }
+    }
+    private val backupLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { writeBackup(it) }
+    }
+    private val restoreLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { readBackupForConfirmation(it) }
+    }
+
+    private fun setupDataToolsSection() {
+        binding.llImportCsv.setOnClickListener { importCsvLauncher.launch(arrayOf("text/*", "*/*")) }
+        binding.llExportReport.setOnClickListener { showReportPeriodPicker() }
+        binding.llBackupData.setOnClickListener {
+            val name = "trackify_backup_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.json"
+            backupLauncher.launch(name)
+        }
+        binding.llRestoreData.setOnClickListener { restoreLauncher.launch(arrayOf("application/json", "*/*")) }
+    }
+
+    private fun importCsv(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val text = requireContext().contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                    val parsed = CsvImportManager.parse(text)
+                    parsed.imported.forEach { db.addExpense(it) }
+                    parsed
+                }
+            }
+            if (_binding == null) return@launch
+            result.onSuccess { r ->
+                SheetSyncManager.triggerSync(requireContext())
+                Toast.makeText(requireContext(), getString(R.string.import_result, r.imported.size, r.skipped), Toast.LENGTH_LONG).show()
+            }.onFailure {
+                Toast.makeText(requireContext(), R.string.import_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun showReportPeriodPicker() {
+        val options = arrayOf(getString(R.string.report_this_month), getString(R.string.report_this_year))
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.export_report)
+            .setItems(options) { _, which -> generateReport(monthly = which == 0) }
+            .show()
+    }
+
+    private fun generateReport(monthly: Boolean) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val file = withContext(Dispatchers.IO) {
+                if (monthly) PdfReportGenerator.generateMonthlyReport(requireContext()) else PdfReportGenerator.generateYearlyReport(requireContext())
+            }
+            if (_binding == null) return@launch
+            if (file != null) {
+                Toast.makeText(requireContext(), R.string.report_generated, Toast.LENGTH_SHORT).show()
+                PdfReportGenerator.shareReport(requireContext(), file)
+            } else {
+                Toast.makeText(requireContext(), R.string.report_no_data, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun writeBackup(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val json = BackupManager.export(requireContext())
+                    requireContext().contentResolver.openOutputStream(uri)?.use { it.write(json.toString(2).toByteArray()) }
+                }.isSuccess
+            }
+            if (_binding == null) return@launch
+            Toast.makeText(requireContext(), if (ok) R.string.backup_created else R.string.backup_failed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun readBackupForConfirmation(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val json = withContext(Dispatchers.IO) {
+                runCatching {
+                    val text = requireContext().contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                    JSONObject(text)
+                }
+            }
+            if (_binding == null) return@launch
+            json.onSuccess { parsed ->
+                val counts = BackupManager.counts(parsed)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.restore_confirm_title)
+                    .setMessage(getString(R.string.restore_confirm_message, counts.expenses, counts.income, counts.recurring, counts.goals))
+                    .setPositiveButton(R.string.restore_data) { _, _ -> performRestore(parsed) }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }.onFailure {
+                Toast.makeText(requireContext(), R.string.restore_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun performRestore(json: JSONObject) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            withContext(Dispatchers.IO) { BackupManager.restore(requireContext(), json) }
+            if (_binding == null) return@launch
+            Toast.makeText(requireContext(), R.string.restore_done, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupCurrencySection() {

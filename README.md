@@ -17,16 +17,30 @@ your device; nothing is sent anywhere unless you explicitly turn on
 - **Savings goals**, **PIN app lock**, dark/light theme.
 - **Shake to Add Expense** — shake your phone while the app is open to jump
   straight into Add Expense. See below.
-- **Fast capture, five ways**: the bottom-nav **+**, **Shake**, a **home
-  screen widget**, a **Quick Settings tile**, and **Voice** ("spent 500 on
-  groceries") all land in the same Add Expense screen, pre-filled where
-  possible, for you to review and save. Static **app shortcuts**
-  (long-press the launcher icon) jump straight to Add Expense, Transactions,
-  or Dashboard.
+- **Fast capture, seven ways**: the bottom-nav **+**, **Shake**, a **home
+  screen widget**, a **Quick Settings tile**, **Voice** ("spent 500 on
+  groceries"), **Scan Receipt** (on-device OCR), and **Share → Trackify**
+  (parse a bank SMS/alert) all land in the same Add Expense screen,
+  pre-filled where possible, for you to review and save. Static **app
+  shortcuts** (long-press the launcher icon) jump straight to Add Expense,
+  Transactions, or Dashboard.
 - **Smart suggestions** — typing a title you've used before auto-fills the
   category you picked last time (`MerchantMemory.kt`, all on-device, no
   cloud AI); your 5 most recently used categories and common ₹ amounts show
-  as quick-pick chips in Add Expense.
+  as quick-pick chips in Add Expense. A **split-expense** calculator turns a
+  total bill + headcount into your share.
+- **Payment method**, **income vs. transfer** (transfers are excluded from
+  income totals), and **subscription tracking** on recurring items (with a
+  monthly/annual subscription total).
+- **Display currency** setting (INR/USD/EUR/GBP/AED/SGD) — see
+  [Multi-currency](#multi-currency) for exactly what this does and doesn't do.
+- **Natural-language search** — type "food above 500 in august" in
+  Transactions and it's parsed into category/amount/date filters, with
+  anything left over still doing a plain substring match.
+- **Data tools** (Settings → Data) — **CSV export/import**, **PDF monthly/
+  yearly reports**, and full **JSON backup/restore**, all via Android's
+  Storage Access Framework (you pick the file/folder — no broad storage
+  permission).
 - **Google Sheets sync (optional)** — back up expenses to a spreadsheet you
   own and control. See [`GOOGLE_SHEETS_SETUP.md`](GOOGLE_SHEETS_SETUP.md).
 - **Ads** — AdMob banner + native ad on the dashboard, and an interstitial
@@ -68,12 +82,45 @@ flow, and Sheets sync are shared, not duplicated) — some just pre-fill it:
 | Home screen widget | classic `AppWidgetProvider` + `RemoteViews` — no Jetpack Glance/Compose dependency added, since the rest of the app is View-based | `ExpenseWidgetProvider.kt` |
 | Quick Settings tile | `TileService`, add via the QS panel's edit pencil | `QuickExpenseTileService.kt` |
 | App shortcuts | long-press the launcher icon | `res/xml/shortcuts.xml` |
-| Voice | bottom-sheet "Add by Voice" → Android's built-in speech recognizer activity (no `RECORD_AUDIO` permission needed — recognition happens in a separate system/Assistant app, not in-process) → a plain keyword/regex parser guesses amount/category/title → opens Add Expense pre-filled for you to correct and save | `VoiceExpenseParser.kt` |
+| Voice | bottom-sheet "Add by Voice" → Android's built-in speech recognizer activity (no `RECORD_AUDIO` permission needed — recognition happens in a separate system/Assistant app, not in-process) → a plain keyword/regex parser guesses amount/category/title → opens Add Expense pre-filled | `VoiceExpenseParser.kt` |
+| Scan Receipt | bottom-sheet "Scan Receipt" → requests `CAMERA` → captures via the system camera app (`FileProvider`, no storage permission) → on-device ML Kit text recognition (bundled model, no cloud call) → regex pulls a total/date → opens Add Expense pre-filled | `ReceiptParser.kt` |
+| Share → Trackify | share a bank/UPI SMS or alert to Trackify from any app | same `VoiceExpenseParser` the voice flow uses |
 
 The widget refreshes automatically after any add/edit/delete/clear — every
 write funnels through `DatabaseHelper`, which pings
 `ExpenseWidgetProvider.updateAll()` once, rather than every call site
 remembering to refresh it.
+
+None of these OCR/voice/SMS results ever save on their own — every path
+lands back in the normal Add Expense form (title/amount/category/date all
+editable) so a bad guess just gets corrected before Save, the same way a
+typo would.
+
+## Multi-currency
+
+**Settings → Currency** changes the symbol/format `CurrencyFormatter` uses
+everywhere amounts are displayed — dashboard, transaction/income/goals/
+recurring lists, the home widget, split-expense math. That is *all* it does:
+
+- No per-transaction currency or FX-rate tracking — the database just stores
+  numbers, same as always.
+- No conversion of historical amounts when you switch currencies.
+- The ₹ prefix inside the Add/Edit Expense/Income amount field stays static
+  (`@string/prefix_currency`) — it's not wired to this setting.
+
+A real multi-currency ledger (per-transaction currency + stored FX rate, per
+the "don't silently convert historical transactions" principle) is a bigger
+feature than this display-format swap; this covers the common case of
+picking one currency and having the app consistently show it.
+
+## Data tools (Settings → Data)
+
+| Tool | What it does |
+|---|---|
+| Import CSV | Reads the same `Title,Amount,Category,Date,Notes` shape Export CSV writes (header matched case-insensitively, falls back to positional columns). Invalid rows are skipped and counted, valid ones are inserted and queued for Sheets sync — nothing is silently dropped. |
+| Export Report (PDF) | A one-page monthly or yearly report (totals, category breakdown / month-by-month) drawn with the platform's own `android.graphics.pdf.PdfDocument` — no PDF library dependency — then shared via the same `FileProvider` chooser as CSV export. |
+| Backup Data | Writes every expense/income/recurring/goal to a JSON file you choose via Android's document picker (`CreateDocument`) — a plain file, not an account or cloud service. |
+| Restore Data | Reads a backup JSON, shows exactly how many rows of each type it contains, and **only after you confirm** replaces everything currently in the app with it. |
 
 ## Google Sheets Sync (optional)
 
@@ -99,17 +146,23 @@ see the full walkthrough in [`GOOGLE_SHEETS_SETUP.md`](GOOGLE_SHEETS_SETUP.md)
 ```
 UI (Activities/Fragments, ViewBinding)
    ├─ Dashboard / Analytics / Expenses / Income / Recurring / Goals / Settings
-   ├─ Quick Expense entry — AddExpenseActivity, reused by both the bottom-nav
-   │  "+" and the shake trigger
-   └─ Settings — Quick Expense (shake) + Google Sheets Sync sections
+   ├─ Quick Expense entry — AddExpenseActivity, the single landing point for
+   │  the bottom-nav "+", Shake, widget, QS tile, voice, receipt scan, and
+   │  share-to-app — all just pre-fill it differently
+   └─ Settings — Quick Expense, Currency, Google Sheets Sync, Data tools
          │
-DatabaseHelper (SQLiteOpenHelper) — single source of truth, local-only
+DatabaseHelper (SQLiteOpenHelper) — single source of truth, local-only;
+   every write funnels through it, so widget refresh happens in one place
          │
 SheetSyncManager — optional, best-effort push to a user-owned Apps Script
    (plain HttpURLConnection + org.json; no extra network dependency)
+BackupManager / CsvImportManager / PdfReportGenerator — data in/out,
+   independent of the sync layer (org.json + platform PdfDocument, no libs)
 
 ShakeDetector — isolated SensorEventListener, independent of any UI,
    only wired up by MainActivity while it's in the foreground
+VoiceExpenseParser / ReceiptParser / NaturalSearchParser — plain regex/
+   keyword parsers, no cloud AI, each testable standalone
 ```
 
 ## Build
@@ -134,10 +187,23 @@ again (`NotificationHelper.kt`).
 
 ## What isn't built yet
 
-This app intentionally does **not** implement the full 105-section feature
-wishlist some reference specs describe. Explicitly out of scope so far:
-receipt/OCR scanning, split expenses, multi-currency, multiple payment
-accounts, travel mode, subscription tracker, backup/restore, PDF/yearly
-reports, natural-language search, and share-to-app SMS/UPI parsing. Back-tap
-gesture detection is deliberately not implemented — Android has no universal
-third-party API for it, so shake is the supported gesture.
+Everything from a 105-section "real-world features" reference spec's P0 and
+P1 phases is implemented, plus its P2 phase (receipt scanning, split
+expenses, income transfers, subscription tracking, payment methods, display
+currency, CSV import, PDF reports, backup/restore, natural-language search,
+share-to-app parsing) — see the sections above for exactly what each one
+does and, in currency's and NL search's case, doesn't do.
+
+Still not built (that spec's P3 — travel mode, location-based
+categorization, multi-account debt tracking, and similar) plus a few things
+deliberately never attempted:
+
+- **Multiple payment accounts/wallets** beyond the payment-method label on
+  an expense — no per-account balances or transfers between them.
+- **Travel mode**, **location-based categorization**, **split-expense debt
+  tracking** (who-owes-whom across people) — the split calculator computes
+  your share, it doesn't track other people's shares.
+- **Back-tap gesture detection** — Android has no universal third-party API
+  for it, so shake is the one supported gesture, by design, not oversight.
+- **True per-transaction multi-currency** (stored FX rate, mixed-currency
+  totals) — see [Multi-currency](#multi-currency).
