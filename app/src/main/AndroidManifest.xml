@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ExpenseManager">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3640202358658644~4163736166" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.ExpenseManager.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:label="@string/app_name" />
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false"
+            android:label="@string/dashboard" />
+
+        <activity
+            android:name=".AddExpenseActivity"
+            android:exported="false"
+            android:label="@string/add_expense"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ExpenseListActivity"
+            android:exported="false"
+            android:label="@string/expense_list"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".EditExpenseActivity"
+            android:exported="false"
+            android:label="@string/edit_expense"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".AnalyticsActivity"
+            android:exported="false"
+            android:label="@string/analytics" />
+
+        <activity
+            android:name=".AddIncomeActivity"
+            android:exported="false"
+            android:label="@string/add_income"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".RecurringActivity"
+            android:exported="false"
+            android:label="@string/recurring_expenses" />
+
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".EditIncomeActivity"
+            android:exported="false"
+            android:label="@string/edit_income"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Prevent AdMob's auto-init ContentProvider from blocking the main thread at startup -->
+        <provider
+            android:name="com.google.android.gms.ads.MobileAdsInitProvider"
+            android:authorities="${applicationId}.mobileadsinitprovider"
+            android:exported="false"
+            android:initOrder="100"
+            tools:node="remove" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Trackify</string>
+    <string name="tagline">Smart Money Tracker</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="add_expense">Add Expense</string>
+    <string name="expense_list">All Expenses</string>
+    <string name="edit_expense">Edit Expense</string>
+    <string name="analytics">Analytics</string>
+
+    <!-- Dashboard -->
+    <string name="greeting_morning">Good Morning 👋</string>
+    <string name="greeting_afternoon">Good Afternoon 👋</string>
+    <string name="greeting_evening">Good Evening 👋</string>
+    <string name="total_expenses">Total Expenses</string>
+    <string name="transactions">Transactions</string>
+    <string name="this_month">This Month</string>
+    <string name="this_week">This Week</string>
+    <string name="this_year">This Year</string>
+    <string name="category_breakdown">Category Breakdown</string>
+    <string name="recent_transactions">Recent Transactions</string>
+    <string name="no_expenses_yet">No expenses yet.\nTap + to add your first!</string>
+    <string name="no_recent">No recent transactions</string>
+    <string name="view_all">View All</string>
+    <string name="view_analytics">Analytics</string>
+
+    <!-- Financial Overview -->
+    <string name="financial_overview">Financial Overview</string>
+    <string name="income_label">Income</string>
+    <string name="expenses_label">Expenses</string>
+    <string name="net_label">Net Saved</string>
+    <string name="savings_rate_info">Saving %1$d%% of income this month</string>
+    <string name="add_income">Add Income</string>
+    <string name="recurring_expenses">Recurring Expenses</string>
+
+    <!-- Smart Insight -->
+    <string name="smart_insight">Smart Insight</string>
+    <string name="insight_welcome">Welcome! Start tracking income and expenses.</string>
+    <string name="insight_spending_up">Heads up — you\'re spending %1$d%% more than last month.</string>
+    <string name="insight_spending_down">Great work — spending %1$d%% less than last month!</string>
+    <string name="insight_savings_rate">You\'re saving %1$d%% of your income this month.</string>
+    <string name="insight_over_income">Expenses exceed income this month — review your budget.</string>
+    <string name="insight_top_category">Top spend: %1$s. Consider setting a category budget.</string>
+    <string name="insight_on_track">You\'re on track. Keep up the good work!</string>
+
+    <!-- Budget -->
+    <string name="monthly_budget">Monthly Budget</string>
+    <string name="set_budget">Set Budget</string>
+    <string name="edit_budget">Edit</string>
+    <string name="budget_not_set">Tap to set your monthly budget</string>
+    <string name="budget_dialog_title">Set Monthly Budget</string>
+    <string name="budget_hint">Budget Amount (₹)</string>
+    <string name="budget_save">Save</string>
+    <string name="budget_on_track">On track — %1$d%% used</string>
+    <string name="budget_warning">Warning — %1$d%% used</string>
+    <string name="budget_exceeded">Over budget by ₹%1$s!</string>
+    <string name="budget_of">of</string>
+
+    <!-- Analytics -->
+    <string name="spending_overview">Spending Overview</string>
+    <string name="by_category">By Category</string>
+    <string name="no_data">No spending data yet</string>
+    <string name="top_category">Top Category</string>
+    <string name="avg_per_day">Avg / Day</string>
+
+    <!-- Income -->
+    <string name="income_tracking">Income Tracking</string>
+    <string name="hint_income_title">Income Title (e.g. Monthly Salary)</string>
+    <string name="hint_source">Income Source</string>
+    <string name="save_income">Save Income</string>
+    <string name="msg_income_saved">Income recorded!</string>
+    <string name="error_source_required">Select an income source</string>
+
+    <!-- Recurring -->
+    <string name="add_recurring">Add Recurring Expense</string>
+    <string name="hint_day_of_month">Day of Month (1–28)</string>
+    <string name="recurring_deleted">Recurring expense removed</string>
+    <string name="no_recurring">No recurring expenses</string>
+    <string name="no_recurring_sub">Add monthly bills, subscriptions or EMIs\nto track them automatically each month.</string>
+    <string name="recurring_info">Recurring expenses are auto-added each month on the scheduled day when you open the app.</string>
+    <string name="error_fill_all_fields">Please fill in all required fields correctly</string>
+
+    <!-- Export -->
+    <string name="export_csv">Export CSV</string>
+    <string name="export_subject">My Expense Report</string>
+    <string name="export_no_data">No expenses to export</string>
+    <string name="export_success">Report ready — choose where to send it</string>
+
+    <!-- Date Filter -->
+    <string name="from_date">From Date</string>
+    <string name="to_date">To Date</string>
+    <string name="clear_filters">Clear Filters</string>
+
+    <!-- Form labels -->
+    <string name="hint_title">Expense Title</string>
+    <string name="hint_amount">Amount</string>
+    <string name="hint_category">Category</string>
+    <string name="hint_date">Date</string>
+    <string name="hint_notes">Notes (optional)</string>
+    <string name="prefix_currency">₹ </string>
+
+    <!-- Actions -->
+    <string name="save_expense">Save Expense</string>
+    <string name="update_expense">Update Expense</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add_first_expense">Add Expense</string>
+    <string name="expense_deleted">Expense deleted</string>
+    <string name="undo">Undo</string>
+
+    <!-- Validation and Feedback -->
+    <string name="error_title_required">Title is required</string>
+    <string name="error_invalid_amount">Enter a valid positive amount</string>
+    <string name="error_category_required">Select a category</string>
+    <string name="error_date_required">Select a date</string>
+    <string name="msg_expense_saved">Expense saved!</string>
+    <string name="msg_expense_updated">Expense updated!</string>
+    <string name="msg_save_failed">Failed to save. Try again.</string>
+    <string name="msg_update_failed">Update failed. Try again.</string>
+
+    <!-- Empty states -->
+    <string name="empty_expenses_title">No Expenses Found</string>
+    <string name="empty_expenses_subtitle">Start tracking your spending by adding your first expense.</string>
+
+    <!-- Delete dialog -->
+    <string name="delete_title">Delete Expense</string>
+    <string name="delete_message">Are you sure? This action cannot be undone.</string>
+
+    <!-- Sort -->
+    <string name="sort_date">By Date</string>
+    <string name="sort_amount">By Amount</string>
+    <string name="filter_all">All Categories</string>
+    <string name="content_desc_category">Category Icon</string>
+    <string name="search_hint">Search expenses…</string>
+
+    <!-- Bottom Nav Labels -->
+    <string name="nav_home">Home</string>
+    <string name="nav_expenses">Expenses</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_income">Income</string>
+    <string name="nav_analytics">Analytics</string>
+
+    <!-- Income History -->
+    <string name="income_history">Income History</string>
+    <string name="no_income">No income recorded yet.\nTap + to add your first!</string>
+    <string name="income_deleted">Income entry deleted</string>
+    <string name="total_income_all">All-Time Income</string>
+    <string name="source_breakdown">By Source</string>
+    <string name="income_count">%1$d entries</string>
+
+    <!-- Add Chooser Bottom Sheet -->
+    <string name="add_chooser_title">What would you like to add?</string>
+    <string name="add_expense_desc">Record a payment or purchase</string>
+    <string name="add_income_desc">Log salary, freelance or any earning</string>
+
+    <!-- Financial Health Score -->
+    <string name="financial_health">Financial Health</string>
+    <string name="health_score_label">Score</string>
+    <string name="health_excellent">Excellent</string>
+    <string name="health_good">Good</string>
+    <string name="health_fair">Fair</string>
+    <string name="health_needs_work">Needs Work</string>
+    <string name="health_basis">Based on budget, savings &amp; activity</string>
+
+    <!-- 7-Day Chart -->
+    <string name="chart_7day">7-Day Spending</string>
+    <string name="chart_no_data">No spending in the last 7 days</string>
+
+    <!-- PIN Login -->
+    <string name="pin_enter_title">Enter Your PIN</string>
+    <string name="pin_create_title">Create a PIN</string>
+    <string name="pin_confirm_title">Confirm PIN</string>
+    <string name="pin_subtitle_verify">Unlock Trackify</string>
+    <string name="pin_subtitle_create">Set a 4-digit PIN to secure your data</string>
+    <string name="pin_subtitle_confirm">Enter the same PIN again to confirm</string>
+    <string name="forgot_pin">Forgot PIN? Remove Lock</string>
+    <string name="forgot_pin_title">Remove PIN Lock?</string>
+    <string name="forgot_pin_message">Your PIN lock will be removed. Your financial data remains safe.</string>
+    <string name="pin_mismatch">PINs don\'t match. Try again.</string>
+    <string name="pin_wrong">Wrong PIN. %1$d attempt(s) left.</string>
+    <string name="pin_changed">PIN updated successfully</string>
+    <string name="pin_enabled_success">App lock enabled</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="section_security">SECURITY</string>
+    <string name="app_lock">App Lock</string>
+    <string name="app_lock_desc">Require PIN every time you open the app</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="section_data">DATA</string>
+    <string name="clear_all_data">Clear All Data</string>
+    <string name="clear_data_title">Clear All Data?</string>
+    <string name="clear_data_message">This will permanently delete all expenses, income, recurring rules, and goals. This cannot be undone.</string>
+    <string name="clear_data_confirm">Clear Everything</string>
+    <string name="data_cleared">All data cleared</string>
+    <string name="section_about">ABOUT</string>
+    <string name="app_version">Version 1.2.0 (5)</string>
+    <string name="app_tagline_long">Smart Money Tracker</string>
+    <string name="disable_app_lock">Disable App Lock</string>
+    <string name="disable_app_lock_message">App lock will be turned off. Anyone with your device can open the app.</string>
+
+    <!-- Quick Expense (Shake to Add) -->
+    <string name="section_quick_expense">QUICK EXPENSE</string>
+    <string name="shake_to_add">Shake to Add Expense</string>
+    <string name="shake_to_add_desc">Shake your phone while Trackify is open to jump straight to Add Expense</string>
+    <string name="shake_sensitivity">Sensitivity</string>
+    <string name="sensitivity_low">Low</string>
+    <string name="sensitivity_medium">Medium</string>
+    <string name="sensitivity_high">High</string>
+    <string name="shake_vibrate">Vibrate on Shake</string>
+    <string name="shake_unavailable">Not available on this device — no motion sensor found</string>
+    <string name="shake_onboarding_title">Shake to Add Expense</string>
+    <string name="shake_onboarding_message">Shake your phone firmly while the app is open and Trackify will jump straight to Add Expense. It only reads the motion sensor already built into your phone — no extra permissions, nothing sent anywhere.\n\nTry it now — shake your phone!</string>
+    <string name="shake_detected">Shake detected! ✓</string>
+
+    <!-- Google Sheets Sync -->
+    <string name="section_sheet_sync">GOOGLE SHEETS SYNC</string>
+    <string name="sheet_sync_title">Sync to Google Sheets</string>
+    <string name="sheet_sync_desc">Back up every expense to a Google Sheet you control</string>
+    <string name="sheet_sync_url_hint">Web App URL (from Apps Script deployment)</string>
+    <string name="sheet_sync_token_hint">Access Token (set in the script)</string>
+    <string name="sheet_sync_test">Test Connection</string>
+    <string name="sheet_sync_now">Sync Now</string>
+    <string name="sheet_sync_guide">Setup Guide ↗</string>
+    <string name="sheet_sync_url_required">Enter the Web App URL first</string>
+    <string name="sheet_sync_testing">Testing…</string>
+    <string name="sheet_sync_success">%1$s</string>
+    <string name="sheet_sync_failed">Failed: %1$s</string>
+    <string name="sheet_sync_started">Syncing pending expenses…</string>
+    <string name="sync_status_synced">Synced</string>
+    <string name="sync_status_pending">Pending sync</string>
+    <string name="sync_status_failed">Sync failed</string>
+
+    <!-- Goals -->
+    <string name="savings_goals">Savings Goals</string>
+    <string name="add_goal">Add Goal</string>
+    <string name="goal_name_hint">Goal Name (e.g. Emergency Fund)</string>
+    <string name="goal_target_hint">Target Amount (₹)</string>
+    <string name="goal_deadline_hint">Deadline (optional, e.g. 2025-12)</string>
+    <string name="no_goals">No savings goals yet.\nTap + to create your first!</string>
+    <string name="add_money">Add Money</string>
+    <string name="add_to_goal_title">Add to Goal</string>
+    <string name="amount_to_add_hint">Amount to Add (₹)</string>
+    <string name="goal_deleted">Goal deleted</string>
+    <string name="goal_completed">Goal complete!</string>
+    <string name="total_saved">Total Saved</string>
+    <string name="total_target">Total Target</string>
+    <string name="view_goals">View Goals →</string>
+    <string name="goals_summary">%1$d goal(s) · %2$s saved</string>
+    <string name="new_goal">New Goal</string>
+    <string name="goal_error_name">Goal name is required</string>
+    <string name="goal_error_target">Enter a valid target amount</string>
+
+    <!-- Edit Income -->
+    <string name="edit_income">Edit Income</string>
+    <string name="update_income">Update Income</string>
+    <string name="msg_income_updated">Income updated!</string>
+    <string name="msg_income_update_failed">Update failed. Try again.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Smart Money Tracker</string>
+    <string name="onboarding_heading">Welcome to Trackify!</string>
+    <string name="onboarding_sub">What should we call you?</string>
+    <string name="your_name_hint">Your name</string>
+    <string name="get_started">Get Started →</string>
+    <string name="error_name_required">Please enter your name</string>
+
+    <!-- Profile / Settings -->
+    <string name="section_profile">PROFILE</string>
+    <string name="tap_to_edit">Tap to edit your profile</string>
+    <string name="set_your_name">Set your name</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="save">Save</string>
+    <string name="summary_subtitle">Here\'s your financial summary</string>
+
+    <!-- Categories -->
+    <string name="cat_food">Food</string>
+    <string name="cat_travel">Travel</string>
+    <string name="cat_shopping">Shopping</string>
+    <string name="cat_bills">Bills</string>
+    <string name="cat_health">Health</string>
+    <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_education">Education</string>
+    <string name="cat_other">Other</string>
+</resources>

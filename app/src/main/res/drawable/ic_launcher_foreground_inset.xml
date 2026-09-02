@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icons crop to a circle/squircle/rounded-square depending on the launcher, guaranteeing
+     only the inner ~66dp of the 108dp canvas is always visible. The exported wallet artwork was
+     drawn edge-to-edge with no safe-zone padding, so it was being cropped on most home screens.
+     Insetting it here keeps the full glyph inside the safe zone on every mask shape. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:top="18dp"
+        android:bottom="18dp"
+        android:left="18dp"
+        android:right="18dp">
+        <bitmap
+            android:src="@mipmap/ic_launcher_foreground"
+            android:gravity="center" />
+    </item>
+</layer-list>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen padding -->
+    <dimen name="screen_padding">16dp</dimen>
+    <dimen name="screen_padding_large">24dp</dimen>
+
+    <!-- Card -->
+    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius_small">12dp</dimen>
+    <dimen name="card_corner_radius_large">24dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_padding">20dp</dimen>
+    <dimen name="card_padding_small">16dp</dimen>
+
+    <!-- Spacing -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">12dp</dimen>
+    <dimen name="spacing_lg">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">32dp</dimen>
+
+    <!-- Category badge -->
+    <dimen name="badge_size">48dp</dimen>
+    <dimen name="badge_size_small">36dp</dimen>
+    <dimen name="badge_icon_size">24dp</dimen>
+    <dimen name="badge_icon_size_small">18dp</dimen>
+    <dimen name="badge_corner_radius">24dp</dimen>
+
+    <!-- Typography -->
+    <dimen name="text_display">28sp</dimen>
+    <dimen name="text_headline">22sp</dimen>
+    <dimen name="text_title">18sp</dimen>
+    <dimen name="text_body">15sp</dimen>
+    <dimen name="text_body_small">13sp</dimen>
+    <dimen name="text_label">12sp</dimen>
+    <dimen name="text_caption">11sp</dimen>
+
+    <!-- FAB -->
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Toolbar -->
+    <dimen name="toolbar_height">56dp</dimen>
+
+    <!-- Button -->
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="button_corner_radius">12dp</dimen>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MD3 Primary — Deep Violet -->
+    <color name="md3_primary">#7C3AED</color>
+    <color name="md3_on_primary">#FFFFFF</color>
+    <color name="md3_primary_container">#EDE9FE</color>
+    <color name="md3_on_primary_container">#2E1065</color>
+    <color name="md3_primary_dark">#6D28D9</color>
+
+    <!-- MD3 Secondary — Warm Amber -->
+    <color name="md3_secondary">#D97706</color>
+    <color name="md3_on_secondary">#FFFFFF</color>
+    <color name="md3_secondary_container">#FEF3C7</color>
+    <color name="md3_on_secondary_container">#451A03</color>
+
+    <!-- MD3 Tertiary — Sky Blue (charts / analytics) -->
+    <color name="md3_tertiary">#0EA5E9</color>
+    <color name="md3_on_tertiary">#FFFFFF</color>
+    <color name="md3_tertiary_container">#E0F2FE</color>
+    <color name="md3_on_tertiary_container">#0C4A6E</color>
+
+    <!-- Background & Surface (Light) -->
+    <color name="md3_background">#FAF8FF</color>
+    <color name="md3_on_background">#1A0A3D</color>
+    <color name="md3_surface">#FFFFFF</color>
+    <color name="md3_on_surface">#1A0A3D</color>
+    <color name="md3_surface_variant">#EDE9FE</color>
+    <color name="md3_on_surface_variant">#5B21B6</color>
+    <color name="md3_surface_container">#F5F0FF</color>
+    <color name="md3_surface_container_high">#EDE9FE</color>
+
+    <!-- Error -->
+    <color name="md3_error">#DC2626</color>
+    <color name="md3_on_error">#FFFFFF</color>
+    <color name="md3_error_container">#FEE2E2</color>
+    <color name="md3_on_error_container">#7F1D1D</color>
+
+    <!-- Outline -->
+    <color name="md3_outline">#A78BFA</color>
+    <color name="md3_outline_variant">#DDD6FE</color>
+
+    <!-- Status -->
+    <color name="md3_success">#10B981</color>
+    <color name="md3_warning">#F59E0B</color>
+
+    <!-- Category badge colors -->
+    <color name="cat_food">#FF6B6B</color>
+    <color name="cat_travel">#4ECDC4</color>
+    <color name="cat_shopping">#45B7D1</color>
+    <color name="cat_bills">#FFA07A</color>
+    <color name="cat_health">#66BB6A</color>
+    <color name="cat_entertainment">#BA68C8</color>
+    <color name="cat_education">#42A5F5</color>
+    <color name="cat_other">#90A4AE</color>
+</resources>

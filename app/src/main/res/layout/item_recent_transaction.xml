@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/spacing_sm"
+    android:paddingBottom="@dimen/spacing_sm">
+
+    <!-- Category dot -->
+    <View
+        android:id="@+id/vDot"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="@dimen/spacing_md"
+        android:background="@drawable/bg_dot" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvRecentTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="@dimen/text_body_small" />
+
+    <!-- Amount -->
+    <TextView
+        android:id="@+id/tvRecentAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="@dimen/text_body_small"
+        android:textStyle="bold" />
+</LinearLayout>

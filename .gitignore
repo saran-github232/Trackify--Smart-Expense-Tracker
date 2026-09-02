@@ -1,0 +1,23 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+/keystore.properties
+*.jks
+
+# Build output artifacts (regenerate via ./gradlew bundleRelease / assembleRelease)
+/app/release
+
+# Local Claude Code tooling config — not part of the app
+/.claude
