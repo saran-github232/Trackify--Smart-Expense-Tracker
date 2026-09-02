@@ -102,6 +102,10 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         intent.getStringExtra(EXTRA_PREFILL_CATEGORY)?.takeIf { categories.contains(it) }
             ?.let { binding.actvCategory.setText(it, false) }
         intent.getStringExtra(EXTRA_PREFILL_NOTES)?.let { binding.etNotes.setText(it) }
+        intent.getStringExtra(EXTRA_PREFILL_DATE)?.let { dateStr ->
+            runCatching { cal.time = dateFmt.parse(dateStr)!! }
+            binding.etDate.setText(dateStr)
+        }
     }
 
     /** Handles "Share > Trackify" from an SMS/notification app — e.g. a bank debit alert. */
@@ -301,5 +305,6 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         const val EXTRA_PREFILL_AMOUNT = "prefill_amount"
         const val EXTRA_PREFILL_CATEGORY = "prefill_category"
         const val EXTRA_PREFILL_NOTES = "prefill_notes"
+        const val EXTRA_PREFILL_DATE = "prefill_date"
     }
 }

@@ -178,6 +178,10 @@
     <string name="add_by_voice_desc">Say it, review it, save it</string>
     <string name="voice_prompt">Say your expense — e.g. \"Spent 500 on groceries\"</string>
     <string name="voice_unavailable">Voice input isn\'t available on this device</string>
+    <string name="scan_receipt">Scan Receipt</string>
+    <string name="scan_receipt_desc">Snap a photo, we\'ll read the total</string>
+    <string name="camera_permission_needed">Camera access is needed to scan a receipt</string>
+    <string name="receipt_scan_failed">Couldn\'t read that receipt — enter it manually</string>
 
     <!-- Home screen widget -->
     <string name="widget_today_label">Today</string>
