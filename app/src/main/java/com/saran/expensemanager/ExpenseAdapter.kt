@@ -52,7 +52,11 @@ class ExpenseAdapter(
         fun bind(expense: Expense) {
             b.tvTitle.text = expense.title
             b.tvAmount.text = fmt.format(expense.amount)
-            b.tvCategory.text = expense.category
+            b.tvCategory.text = if (expense.paymentMethod.isNotBlank()) {
+                "${expense.category} · ${expense.paymentMethod}"
+            } else {
+                expense.category
+            }
             b.tvDate.text = expense.date
 
             val colorHex = categoryColors[expense.category] ?: "#90A4AE"

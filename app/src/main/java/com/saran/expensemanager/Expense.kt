@@ -8,4 +8,5 @@ data class Expense(
     val date: String,
     val notes: String = "",
     val syncStatus: String = DatabaseHelper.SYNC_PENDING,
+    val paymentMethod: String = "",
 )

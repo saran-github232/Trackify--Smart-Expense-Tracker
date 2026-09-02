@@ -98,6 +98,7 @@ class ExpenseListFragment : Fragment() {
                     putExtra("expense_category", expense.category)
                     putExtra("expense_date", expense.date)
                     putExtra("expense_notes", expense.notes)
+                    putExtra("expense_payment_method", expense.paymentMethod)
                 })
             },
             onDelete = { expense -> confirmDelete(expense) }

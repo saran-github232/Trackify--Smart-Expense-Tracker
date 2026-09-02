@@ -23,6 +23,10 @@ class EditExpenseActivity : EdgeToEdgeActivity() {
         "Health", "Entertainment", "Education", "Other",
     )
 
+    private val paymentMethods = listOf(
+        "Cash", "UPI", "Debit Card", "Credit Card", "Bank Transfer", "Net Banking", "Wallet", "Other",
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditExpenseBinding.inflate(layoutInflater)
@@ -39,6 +43,12 @@ class EditExpenseActivity : EdgeToEdgeActivity() {
         )
         binding.actvCategory.setOnClickListener { binding.actvCategory.showDropDown() }
         binding.tilCategory.setEndIconOnClickListener { binding.actvCategory.showDropDown() }
+
+        binding.actvPaymentMethod.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, paymentMethods)
+        )
+        binding.actvPaymentMethod.setOnClickListener { binding.actvPaymentMethod.showDropDown() }
+        binding.tilPaymentMethod.setEndIconOnClickListener { binding.actvPaymentMethod.showDropDown() }
 
         binding.etDate.setOnClickListener { showDatePicker() }
         binding.tilDate.setEndIconOnClickListener { showDatePicker() }
@@ -61,6 +71,7 @@ class EditExpenseActivity : EdgeToEdgeActivity() {
             },
         )
         binding.actvCategory.setText(intent.getStringExtra("expense_category") ?: "", false)
+        binding.actvPaymentMethod.setText(intent.getStringExtra("expense_payment_method") ?: "", false)
         val dateStr = intent.getStringExtra("expense_date") ?: ""
         binding.etDate.setText(dateStr)
         binding.etNotes.setText(intent.getStringExtra("expense_notes") ?: "")
@@ -90,6 +101,7 @@ class EditExpenseActivity : EdgeToEdgeActivity() {
         val category = binding.actvCategory.text.toString().trim()
         val date = binding.etDate.text.toString().trim()
         val notes = binding.etNotes.text.toString().trim()
+        val paymentMethod = binding.actvPaymentMethod.text.toString().trim()
 
         if (!validate(title, amountStr, category, date)) return
         isSaving = true
@@ -103,6 +115,7 @@ class EditExpenseActivity : EdgeToEdgeActivity() {
                 category = category,
                 date = date,
                 notes = notes,
+                paymentMethod = paymentMethod,
             ),
         )
         if (rows > 0) {

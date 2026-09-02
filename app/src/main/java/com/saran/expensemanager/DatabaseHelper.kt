@@ -13,7 +13,7 @@ class DatabaseHelper(context: Context) :
 
     companion object {
         private const val DATABASE_NAME = "expense_manager.db"
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
 
         // Expenses table
         private const val TABLE = "expenses"
@@ -27,6 +27,7 @@ class DatabaseHelper(context: Context) :
         const val SYNC_SYNCED = "synced"
         const val SYNC_PENDING = "pending"
         const val SYNC_FAILED = "failed"
+        const val COL_PAYMENT_METHOD = "payment_method"
 
         // Income table
         private const val INCOME_TABLE = "income"
@@ -36,6 +37,9 @@ class DatabaseHelper(context: Context) :
         private const val INC_SOURCE = "source"
         private const val INC_DATE = "date"
         private const val INC_NOTES = "notes"
+        const val INC_TYPE = "type"
+        const val INCOME_TYPE_INCOME = "income"
+        const val INCOME_TYPE_TRANSFER = "transfer"
 
         // Recurring table
         private const val RECURRING_TABLE = "recurring"
@@ -45,6 +49,7 @@ class DatabaseHelper(context: Context) :
         private const val REC_CATEGORY = "category"
         private const val REC_DAY = "day_of_month"
         private const val REC_NOTES = "notes"
+        const val REC_SUBSCRIPTION = "is_subscription"
 
         // Goals table
         private const val GOALS_TABLE = "goals"
@@ -73,7 +78,8 @@ class DatabaseHelper(context: Context) :
             $COL_CATEGORY     TEXT    NOT NULL,
             $COL_DATE         TEXT    NOT NULL,
             $COL_NOTES        TEXT    DEFAULT '',
-            $COL_SYNC_STATUS  TEXT    DEFAULT '$SYNC_PENDING'
+            $COL_SYNC_STATUS  TEXT    DEFAULT '$SYNC_PENDING',
+            $COL_PAYMENT_METHOD TEXT  DEFAULT ''
         )""".trimIndent()
 
     private val createIncomeTable = """
@@ -83,7 +89,8 @@ class DatabaseHelper(context: Context) :
             $INC_AMOUNT REAL    NOT NULL,
             $INC_SOURCE TEXT    NOT NULL,
             $INC_DATE   TEXT    NOT NULL,
-            $INC_NOTES  TEXT    DEFAULT ''
+            $INC_NOTES  TEXT    DEFAULT '',
+            $INC_TYPE   TEXT    DEFAULT '$INCOME_TYPE_INCOME'
         )""".trimIndent()
 
     private val createRecurringTable = """
@@ -93,7 +100,8 @@ class DatabaseHelper(context: Context) :
             $REC_AMOUNT   REAL    NOT NULL,
             $REC_CATEGORY TEXT    NOT NULL,
             $REC_DAY      INTEGER NOT NULL,
-            $REC_NOTES    TEXT    DEFAULT ''
+            $REC_NOTES    TEXT    DEFAULT '',
+            $REC_SUBSCRIPTION INTEGER DEFAULT 0
         )""".trimIndent()
 
     private val createGoalsTable = """
@@ -124,6 +132,11 @@ class DatabaseHelper(context: Context) :
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_SYNC_STATUS TEXT DEFAULT '$SYNC_PENDING'")
         }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_PAYMENT_METHOD TEXT DEFAULT ''")
+            db.execSQL("ALTER TABLE $INCOME_TABLE ADD COLUMN $INC_TYPE TEXT DEFAULT '$INCOME_TYPE_INCOME'")
+            db.execSQL("ALTER TABLE $RECURRING_TABLE ADD COLUMN $REC_SUBSCRIPTION INTEGER DEFAULT 0")
+        }
     }
 
     // ── Expense CRUD ─────────────────────────────────────────────────────────
@@ -135,6 +148,7 @@ class DatabaseHelper(context: Context) :
             put(COL_CATEGORY, expense.category)
             put(COL_DATE, expense.date)
             put(COL_NOTES, expense.notes)
+            put(COL_PAYMENT_METHOD, expense.paymentMethod)
         }
         val id = writableDatabase.insert(TABLE, null, cv)
         if (id > 0) notifyWidgets()
@@ -159,6 +173,7 @@ class DatabaseHelper(context: Context) :
             put(COL_CATEGORY, expense.category)
             put(COL_DATE, expense.date)
             put(COL_NOTES, expense.notes)
+            put(COL_PAYMENT_METHOD, expense.paymentMethod)
             put(COL_SYNC_STATUS, SYNC_PENDING)
         }
         val rows = writableDatabase.update(TABLE, cv, "$COL_ID = ?", arrayOf(expense.id.toString()))
@@ -209,6 +224,7 @@ class DatabaseHelper(context: Context) :
         date = getString(getColumnIndexOrThrow(COL_DATE)),
         notes = getString(getColumnIndexOrThrow(COL_NOTES)) ?: "",
         syncStatus = getString(getColumnIndexOrThrow(COL_SYNC_STATUS)) ?: SYNC_PENDING,
+        paymentMethod = getString(getColumnIndexOrThrow(COL_PAYMENT_METHOD)) ?: "",
     )
 
     // ── Expense Queries ───────────────────────────────────────────────────────
@@ -325,6 +341,7 @@ class DatabaseHelper(context: Context) :
             put(INC_SOURCE, income.source)
             put(INC_DATE, income.date)
             put(INC_NOTES, income.notes)
+            put(INC_TYPE, income.type)
         }
         return writableDatabase.insert(INCOME_TABLE, null, cv)
     }
@@ -333,20 +350,19 @@ class DatabaseHelper(context: Context) :
         val list = mutableListOf<Income>()
         readableDatabase.query(
             INCOME_TABLE, null, null, null, null, null, "$INC_DATE DESC, $INC_ID DESC"
-        ).use { c ->
-            while (c.moveToNext()) {
-                list += Income(
-                    id = c.getLong(c.getColumnIndexOrThrow(INC_ID)),
-                    title = c.getString(c.getColumnIndexOrThrow(INC_TITLE)),
-                    amount = c.getDouble(c.getColumnIndexOrThrow(INC_AMOUNT)),
-                    source = c.getString(c.getColumnIndexOrThrow(INC_SOURCE)),
-                    date = c.getString(c.getColumnIndexOrThrow(INC_DATE)),
-                    notes = c.getString(c.getColumnIndexOrThrow(INC_NOTES)) ?: ""
-                )
-            }
-        }
+        ).use { c -> while (c.moveToNext()) list += c.toIncome() }
         return list
     }
+
+    private fun android.database.Cursor.toIncome() = Income(
+        id = getLong(getColumnIndexOrThrow(INC_ID)),
+        title = getString(getColumnIndexOrThrow(INC_TITLE)),
+        amount = getDouble(getColumnIndexOrThrow(INC_AMOUNT)),
+        source = getString(getColumnIndexOrThrow(INC_SOURCE)),
+        date = getString(getColumnIndexOrThrow(INC_DATE)),
+        notes = getString(getColumnIndexOrThrow(INC_NOTES)) ?: "",
+        type = getString(getColumnIndexOrThrow(INC_TYPE)) ?: INCOME_TYPE_INCOME,
+    )
 
     fun deleteIncome(id: Long): Int =
         writableDatabase.delete(INCOME_TABLE, "$INC_ID = ?", arrayOf(id.toString()))
@@ -358,13 +374,16 @@ class DatabaseHelper(context: Context) :
             put(INC_SOURCE, income.source)
             put(INC_DATE, income.date)
             put(INC_NOTES, income.notes)
+            put(INC_TYPE, income.type)
         }
         return writableDatabase.update(INCOME_TABLE, cv, "$INC_ID = ?", arrayOf(income.id.toString()))
     }
 
+    /** Excludes transfers — those move money between your own accounts, they aren't earnings. */
     fun getTotalIncome(): Double {
         readableDatabase.rawQuery(
-            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE", null
+            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE WHERE $INC_TYPE = ?",
+            arrayOf(INCOME_TYPE_INCOME)
         ).use { return if (it.moveToFirst()) it.getDouble(0) else 0.0 }
     }
 
@@ -372,8 +391,8 @@ class DatabaseHelper(context: Context) :
         val cal = Calendar.getInstance().also { it.add(Calendar.MONTH, -1) }
         val prefix = "%04d-%02d".format(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1)
         readableDatabase.rawQuery(
-            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE WHERE $INC_DATE LIKE ?",
-            arrayOf("$prefix%")
+            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE WHERE $INC_DATE LIKE ? AND $INC_TYPE = ?",
+            arrayOf("$prefix%", INCOME_TYPE_INCOME)
         ).use { return if (it.moveToFirst()) it.getDouble(0) else 0.0 }
     }
 
@@ -417,8 +436,8 @@ class DatabaseHelper(context: Context) :
         val cal = Calendar.getInstance()
         val prefix = "%04d-%02d".format(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1)
         readableDatabase.rawQuery(
-            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE WHERE $INC_DATE LIKE ?",
-            arrayOf("$prefix%")
+            "SELECT COALESCE(SUM($INC_AMOUNT), 0) FROM $INCOME_TABLE WHERE $INC_DATE LIKE ? AND $INC_TYPE = ?",
+            arrayOf("$prefix%", INCOME_TYPE_INCOME)
         ).use { return if (it.moveToFirst()) it.getDouble(0) else 0.0 }
     }
 
@@ -431,6 +450,7 @@ class DatabaseHelper(context: Context) :
             put(REC_CATEGORY, recurring.category)
             put(REC_DAY, recurring.dayOfMonth)
             put(REC_NOTES, recurring.notes)
+            put(REC_SUBSCRIPTION, if (recurring.isSubscription) 1 else 0)
         }
         return writableDatabase.insert(RECURRING_TABLE, null, cv)
     }
@@ -447,7 +467,8 @@ class DatabaseHelper(context: Context) :
                     amount = c.getDouble(c.getColumnIndexOrThrow(REC_AMOUNT)),
                     category = c.getString(c.getColumnIndexOrThrow(REC_CATEGORY)),
                     dayOfMonth = c.getInt(c.getColumnIndexOrThrow(REC_DAY)),
-                    notes = c.getString(c.getColumnIndexOrThrow(REC_NOTES)) ?: ""
+                    notes = c.getString(c.getColumnIndexOrThrow(REC_NOTES)) ?: "",
+                    isSubscription = c.getInt(c.getColumnIndexOrThrow(REC_SUBSCRIPTION)) != 0,
                 )
             }
         }

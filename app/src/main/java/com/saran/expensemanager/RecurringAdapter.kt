@@ -33,7 +33,8 @@ class RecurringAdapter(
         val item = getItem(position)
         val b = holder.b
         b.tvRecurringTitle.text = item.title
-        b.tvRecurringDetail.text = "Every ${ordinal(item.dayOfMonth)} • ${item.category}"
+        val subscriptionSuffix = if (item.isSubscription) " • Subscription" else ""
+        b.tvRecurringDetail.text = "Every ${ordinal(item.dayOfMonth)} • ${item.category}$subscriptionSuffix"
         b.tvRecurringAmount.text = "₹${String.format("%.0f", item.amount)}"
 
         val color = Color.parseColor(categoryColors[item.category] ?: "#90A4AE")

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.core.content.ContextCompat
@@ -87,6 +88,17 @@ class RecurringFragment : Fragment() {
         adapter.submitList(list)
         binding.llEmptyRecurring.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
         binding.rvRecurring.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+
+        val monthlyTotal = list.filter { it.isSubscription }.sumOf { it.amount }
+        if (monthlyTotal > 0) {
+            val fmt = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("en-IN"))
+            binding.tvSubscriptionTotal.text =
+                "${getString(R.string.monthly_subscription_total, fmt.format(monthlyTotal))} · " +
+                    getString(R.string.annual_subscription_total, fmt.format(monthlyTotal * 12))
+            binding.tvSubscriptionTotal.visibility = View.VISIBLE
+        } else {
+            binding.tvSubscriptionTotal.visibility = View.GONE
+        }
     }
 
     private fun deleteWithUndo(item: Recurring) {
@@ -142,10 +154,18 @@ class RecurringFragment : Fragment() {
             ).also { it.bottomMargin = px8 * 2 }
         }
 
+        val checkSubscription = CheckBox(requireContext()).apply {
+            text = getString(R.string.mark_subscription)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ).also { it.bottomMargin = px8 }
+        }
+
         container.addView(tilTitle)
         container.addView(tilAmount)
         container.addView(spinner)
         container.addView(tilDay)
+        container.addView(checkSubscription)
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.add_recurring))
@@ -156,7 +176,12 @@ class RecurringFragment : Fragment() {
                 val day = etDay.text.toString().trim().toIntOrNull()
                 val category = categories[spinner.selectedItemPosition]
                 if (title.isNotEmpty() && amount != null && amount > 0 && day != null && day in 1..28) {
-                    db.addRecurring(Recurring(title = title, amount = amount, category = category, dayOfMonth = day))
+                    db.addRecurring(
+                        Recurring(
+                            title = title, amount = amount, category = category, dayOfMonth = day,
+                            isSubscription = checkSubscription.isChecked,
+                        )
+                    )
                     loadData()
                 } else {
                     Snackbar.make(binding.root, getString(R.string.error_fill_all_fields), Snackbar.LENGTH_SHORT).show()

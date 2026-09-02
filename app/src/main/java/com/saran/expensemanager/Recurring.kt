@@ -6,5 +6,6 @@ data class Recurring(
     val amount: Double,
     val category: String,
     val dayOfMonth: Int,
-    val notes: String = ""
+    val notes: String = "",
+    val isSubscription: Boolean = false,
 )

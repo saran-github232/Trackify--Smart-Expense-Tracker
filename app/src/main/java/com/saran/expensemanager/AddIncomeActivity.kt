@@ -40,6 +40,8 @@ class AddIncomeActivity : EdgeToEdgeActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
 
+        binding.toggleIncomeType.check(binding.btnTypeIncome.id)
+
         binding.actvSource.setAdapter(
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, sources)
         )
@@ -95,7 +97,12 @@ class AddIncomeActivity : EdgeToEdgeActivity() {
         isSaving = true
         binding.btnSaveIncome.isEnabled = false
 
-        val id = db.addIncome(Income(title = title, amount = amount!!, source = source, date = date, notes = notes))
+        val type = if (binding.toggleIncomeType.checkedButtonId == binding.btnTypeTransfer.id) {
+            DatabaseHelper.INCOME_TYPE_TRANSFER
+        } else {
+            DatabaseHelper.INCOME_TYPE_INCOME
+        }
+        val id = db.addIncome(Income(title = title, amount = amount!!, source = source, date = date, notes = notes, type = type))
         if (id > 0) {
             Toast.makeText(this, getString(R.string.msg_income_saved), Toast.LENGTH_SHORT).show()
             showAdThenFinish()

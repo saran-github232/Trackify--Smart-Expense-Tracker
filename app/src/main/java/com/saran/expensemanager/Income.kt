@@ -6,5 +6,6 @@ data class Income(
     val amount: Double,
     val source: String,
     val date: String,
-    val notes: String = ""
+    val notes: String = "",
+    val type: String = DatabaseHelper.INCOME_TYPE_INCOME,
 )

@@ -98,6 +98,27 @@
     <string name="hint_date">Date</string>
     <string name="hint_notes">Notes (optional)</string>
     <string name="prefix_currency">₹ </string>
+    <string name="hint_payment_method">Payment Method (optional)</string>
+
+    <!-- Split expense -->
+    <string name="split_expense">🔢 Split this expense</string>
+    <string name="split_dialog_title">Split Expense</string>
+    <string name="split_total_hint">Total bill amount</string>
+    <string name="split_people_hint">Number of people</string>
+    <string name="split_apply">Use my share</string>
+    <string name="split_result">Your share: %1$s (of %2$s ÷ %3$d)</string>
+    <string name="split_note">Split %1$s ÷ %2$d people</string>
+
+    <!-- Income type -->
+    <string name="income_type_income">Income</string>
+    <string name="income_type_transfer">Transfer</string>
+
+    <!-- Subscriptions -->
+    <string name="mark_subscription">This is a subscription</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="monthly_subscription_total">Monthly subscriptions: %1$s</string>
+    <string name="annual_subscription_total">≈ %1$s / year</string>
+    <string name="no_subscriptions">No subscriptions marked yet</string>
 
     <!-- Actions -->
     <string name="save_expense">Save Expense</string>

@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
@@ -47,6 +48,18 @@
                 android:textColor="?attr/colorOnSecondaryContainer"
                 android:textSize="@dimen/text_body_small" />
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/tvSubscriptionTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginBottom="@dimen/spacing_xs"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="@dimen/text_body_small"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="Monthly subscriptions: ₹1,298 · ≈ ₹15,576 / year" />
 
         <!-- Empty state -->
         <LinearLayout

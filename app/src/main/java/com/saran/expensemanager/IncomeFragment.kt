@@ -251,6 +251,7 @@ class IncomeFragment : Fragment() {
                 putExtra(EditIncomeActivity.EXTRA_SOURCE, income.source)
                 putExtra(EditIncomeActivity.EXTRA_DATE, income.date)
                 putExtra(EditIncomeActivity.EXTRA_NOTES, income.notes)
+                putExtra(EditIncomeActivity.EXTRA_TYPE, income.type)
             }
         )
     }

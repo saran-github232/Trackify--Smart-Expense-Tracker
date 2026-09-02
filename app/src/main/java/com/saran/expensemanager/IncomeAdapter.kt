@@ -40,7 +40,11 @@ class IncomeAdapter(
 
         fun bind(income: Income) {
             binding.tvIncomeTitle.text = income.title
-            binding.tvIncomeSource.text = income.source
+            binding.tvIncomeSource.text = if (income.type == DatabaseHelper.INCOME_TYPE_TRANSFER) {
+                "${income.source} · Transfer"
+            } else {
+                income.source
+            }
             binding.tvIncomeDate.text = income.date
             binding.tvIncomeAmount.text = "+${fmt.format(income.amount)}"
 

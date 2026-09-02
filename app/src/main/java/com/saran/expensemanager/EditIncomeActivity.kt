@@ -18,6 +18,7 @@ class EditIncomeActivity : EdgeToEdgeActivity() {
         const val EXTRA_SOURCE = "income_source"
         const val EXTRA_DATE = "income_date"
         const val EXTRA_NOTES = "income_notes"
+        const val EXTRA_TYPE = "income_type"
     }
 
     private lateinit var binding: ActivityEditIncomeBinding
@@ -57,6 +58,11 @@ class EditIncomeActivity : EdgeToEdgeActivity() {
         binding.tilSource.setEndIconOnClickListener { binding.actvSource.showDropDown() }
         val savedSource = intent.getStringExtra(EXTRA_SOURCE) ?: ""
         binding.actvSource.setText(savedSource, false)
+
+        val savedType = intent.getStringExtra(EXTRA_TYPE) ?: DatabaseHelper.INCOME_TYPE_INCOME
+        binding.toggleIncomeType.check(
+            if (savedType == DatabaseHelper.INCOME_TYPE_TRANSFER) binding.btnTypeTransfer.id else binding.btnTypeIncome.id
+        )
 
         intent.getStringExtra(EXTRA_DATE)?.let {
             try { cal.time = dateFmt.parse(it)!! } catch (_: Exception) {}
@@ -99,7 +105,12 @@ class EditIncomeActivity : EdgeToEdgeActivity() {
         isSaving = true
         binding.btnSaveIncome.isEnabled = false
 
-        val updated = db.updateIncome(Income(id = incomeId, title = title, amount = amount!!, source = source, date = date, notes = notes))
+        val type = if (binding.toggleIncomeType.checkedButtonId == binding.btnTypeTransfer.id) {
+            DatabaseHelper.INCOME_TYPE_TRANSFER
+        } else {
+            DatabaseHelper.INCOME_TYPE_INCOME
+        }
+        val updated = db.updateIncome(Income(id = incomeId, title = title, amount = amount!!, source = source, date = date, notes = notes, type = type))
         if (updated > 0) {
             Toast.makeText(this, getString(R.string.msg_income_updated), Toast.LENGTH_SHORT).show()
             finish()

@@ -1,8 +1,10 @@
 package com.saran.expensemanager
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
@@ -15,7 +17,11 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.saran.expensemanager.databinding.ActivityAddExpenseBinding
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -32,6 +38,10 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
     private val categories = listOf(
         "Food", "Travel", "Shopping", "Bills",
         "Health", "Entertainment", "Education", "Other",
+    )
+
+    private val paymentMethods = listOf(
+        "Cash", "UPI", "Debit Card", "Credit Card", "Bank Transfer", "Net Banking", "Wallet", "Other",
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,17 +63,25 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         binding.actvCategory.setOnClickListener { binding.actvCategory.showDropDown() }
         binding.tilCategory.setEndIconOnClickListener { binding.actvCategory.showDropDown() }
 
+        binding.actvPaymentMethod.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, paymentMethods)
+        )
+        binding.actvPaymentMethod.setOnClickListener { binding.actvPaymentMethod.showDropDown() }
+        binding.tilPaymentMethod.setEndIconOnClickListener { binding.actvPaymentMethod.showDropDown() }
+
         binding.etDate.setText(dateFmt.format(cal.time))
         binding.etDate.setOnClickListener { showDatePicker() }
         binding.tilDate.setEndIconOnClickListener { showDatePicker() }
 
         binding.btnSave.setOnClickListener { saveExpense() }
         binding.btnCancel.setOnClickListener { finish() }
+        binding.tvSplitExpense.setOnClickListener { showSplitDialog() }
 
         setupQuickAmountChips()
         setupRecentCategoryChips()
         setupMerchantSuggestion()
         applyPrefill()
+        applySharedText()
 
         InterstitialAd.load(this, AdIds.INTERSTITIAL, AdRequest.Builder().build(),
             object : InterstitialAdLoadCallback() {
@@ -84,6 +102,65 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         intent.getStringExtra(EXTRA_PREFILL_CATEGORY)?.takeIf { categories.contains(it) }
             ?.let { binding.actvCategory.setText(it, false) }
         intent.getStringExtra(EXTRA_PREFILL_NOTES)?.let { binding.etNotes.setText(it) }
+    }
+
+    /** Handles "Share > Trackify" from an SMS/notification app — e.g. a bank debit alert. */
+    private fun applySharedText() {
+        if (intent?.action != Intent.ACTION_SEND || intent.type != "text/plain") return
+        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
+        val parsed = VoiceExpenseParser.parse(sharedText)
+        binding.etTitle.setText(parsed.title)
+        if ((parsed.amount ?: 0.0) > 0) {
+            binding.etAmount.setText(
+                if (parsed.amount!! % 1.0 == 0.0) parsed.amount.toLong().toString() else parsed.amount.toString()
+            )
+        }
+        binding.actvCategory.setText(parsed.category, false)
+        binding.etNotes.setText(sharedText)
+    }
+
+    private fun showSplitDialog() {
+        val dp = resources.displayMetrics.density
+        val pad = (16 * dp).toInt()
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(pad, pad, pad, 0)
+        }
+        fun field(hint: String): TextInputEditText {
+            val til = TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+                this.hint = hint
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.bottomMargin = (12 * dp).toInt() }
+            }
+            val et = TextInputEditText(til.context).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            }
+            til.addView(et)
+            container.addView(til)
+            return et
+        }
+        val etTotal = field(getString(R.string.split_total_hint))
+        val etPeople = field(getString(R.string.split_people_hint))
+        if (binding.etAmount.text?.isNotBlank() == true) etTotal.setText(binding.etAmount.text)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.split_dialog_title)
+            .setView(container)
+            .setPositiveButton(R.string.split_apply) { _, _ ->
+                val total = etTotal.text.toString().toDoubleOrNull()
+                val people = etPeople.text.toString().toIntOrNull()
+                if (total != null && total > 0 && people != null && people > 0) {
+                    val share = total / people
+                    val fmt = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
+                    binding.etAmount.setText(
+                        if (share % 1.0 == 0.0) share.toLong().toString() else "%.2f".format(share)
+                    )
+                    binding.etNotes.setText(getString(R.string.split_note, fmt.format(total), people))
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun setupQuickAmountChips() {
@@ -141,6 +218,7 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         val category = binding.actvCategory.text.toString().trim()
         val date = binding.etDate.text.toString().trim()
         val notes = binding.etNotes.text.toString().trim()
+        val paymentMethod = binding.actvPaymentMethod.text.toString().trim()
 
         if (!validate(title, amountStr, category, date)) return
         isSaving = true
@@ -153,6 +231,7 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
                 category = category,
                 date = date,
                 notes = notes,
+                paymentMethod = paymentMethod,
             )
         )
         if (id > 0) {
