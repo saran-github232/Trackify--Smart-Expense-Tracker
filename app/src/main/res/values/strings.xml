@@ -153,6 +153,25 @@
     <string name="add_chooser_title">What would you like to add?</string>
     <string name="add_expense_desc">Record a payment or purchase</string>
     <string name="add_income_desc">Log salary, freelance or any earning</string>
+    <string name="add_by_voice">Add by Voice</string>
+    <string name="add_by_voice_desc">Say it, review it, save it</string>
+    <string name="voice_prompt">Say your expense — e.g. \"Spent 500 on groceries\"</string>
+    <string name="voice_unavailable">Voice input isn\'t available on this device</string>
+
+    <!-- Home screen widget -->
+    <string name="widget_today_label">Today</string>
+    <string name="widget_month_label">This Month</string>
+
+    <!-- Quick amount / recent categories -->
+    <string name="quick_amounts_label">Quick amount</string>
+    <string name="recent_categories_label">Recent</string>
+
+    <!-- Budget & recurring reminder notifications -->
+    <string name="budget_alert_title">Budget alert</string>
+    <string name="budget_alert_body">You\'ve used %1$d%% of your monthly budget</string>
+    <string name="recurring_reminder_title">Upcoming expense</string>
+    <string name="recurring_reminder_body">%1$s is due in %2$d day(s)</string>
+    <string name="recurring_reminder_today">%1$s is due today</string>
 
     <!-- Financial Health Score -->
     <string name="financial_health">Financial Health</string>

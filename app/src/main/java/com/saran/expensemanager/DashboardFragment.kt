@@ -3,12 +3,14 @@ package com.saran.expensemanager
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
@@ -42,6 +44,9 @@ class DashboardFragment : Fragment() {
     private lateinit var db: DatabaseHelper
     private lateinit var budgetPrefs: BudgetPrefs
     private lateinit var userPrefs: UserPrefs
+    private lateinit var reminderPrefs: ReminderPrefs
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* re-checked on next refresh */ }
     private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
     private var nativeAd: NativeAd? = null
     private var bannerAdView: AdView? = null
@@ -82,6 +87,7 @@ class DashboardFragment : Fragment() {
         db = DatabaseHelper.getInstance(requireContext())
         budgetPrefs = BudgetPrefs(requireContext())
         userPrefs = UserPrefs(requireContext())
+        reminderPrefs = ReminderPrefs(requireContext())
 
         binding.headerContainer.applyTopSystemBarInsetPadding()
 
@@ -153,8 +159,9 @@ class DashboardFragment : Fragment() {
 
     private fun refreshStats() {
         viewLifecycleOwner.lifecycleScope.launch {
-            // Recurring auto-add (write op, needs IO)
-            withContext(Dispatchers.IO) { applyRecurringExpenses() }
+            // Recurring auto-add + due-soon reminders (write op, needs IO)
+            val hasRecurring = withContext(Dispatchers.IO) { applyRecurringExpenses() }
+            if (budgetPrefs.hasBudget || hasRecurring) ensureNotificationPermission()
 
             // Fetch all dashboard data in one background pass
             val data = withContext(Dispatchers.IO) {
@@ -176,6 +183,27 @@ class DashboardFragment : Fragment() {
 
             if (_binding == null) return@launch
             bindDashboard(data)
+            checkBudgetAlert(data)
+        }
+    }
+
+    /** Asks for notification permission at most once — declined once means don't nag again. */
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (NotificationHelper.hasPermission(requireContext())) return
+        if (reminderPrefs.wasAlerted("permission_asked")) return
+        reminderPrefs.markAlerted("permission_asked")
+        notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    private fun checkBudgetAlert(data: DashboardData) {
+        if (!data.hasBudget || data.budget <= 0) return
+        val percent = ((data.monthTotal / data.budget) * 100).toInt()
+        val yearMonth = "%04d-%02d".format(Calendar.getInstance()[Calendar.YEAR], Calendar.getInstance()[Calendar.MONTH] + 1)
+        val key = "budget_$yearMonth"
+        if (percent >= reminderPrefs.budgetAlertThreshold && !reminderPrefs.wasAlerted(key)) {
+            reminderPrefs.markAlerted(key)
+            NotificationHelper.postBudgetAlert(requireContext(), percent)
         }
     }
 
@@ -216,9 +244,10 @@ class DashboardFragment : Fragment() {
         loadRecentTransactions(data.recent)
     }
 
-    private fun applyRecurringExpenses() {
+    /** Auto-adds due recurring expenses and reminds about ones due soon. Returns true if any exist. */
+    private fun applyRecurringExpenses(): Boolean {
         val recurring = db.getAllRecurring()
-        if (recurring.isEmpty()) return
+        if (recurring.isEmpty()) return false
         val cal = Calendar.getInstance()
         val today = cal[Calendar.DAY_OF_MONTH]
         val yearMonth = "%04d-%02d".format(cal[Calendar.YEAR], cal[Calendar.MONTH] + 1)
@@ -226,8 +255,16 @@ class DashboardFragment : Fragment() {
             if (today >= rec.dayOfMonth && !db.hasExpenseForMonth(rec.title, yearMonth)) {
                 val date = "$yearMonth-%02d".format(rec.dayOfMonth)
                 db.addExpense(Expense(title = rec.title, amount = rec.amount, category = rec.category, date = date, notes = rec.notes))
+            } else if (today < rec.dayOfMonth) {
+                val daysUntil = rec.dayOfMonth - today
+                val key = "recur_${rec.id}_$yearMonth"
+                if (daysUntil <= reminderPrefs.recurringReminderDays && !reminderPrefs.wasAlerted(key)) {
+                    reminderPrefs.markAlerted(key)
+                    NotificationHelper.postRecurringReminder(requireContext(), rec.id, rec.title, daysUntil)
+                }
             }
         }
+        return true
     }
 
     private fun generateInsight(data: DashboardData): String {

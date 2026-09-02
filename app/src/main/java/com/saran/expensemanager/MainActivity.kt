@@ -41,6 +41,11 @@ class MainActivity : EdgeToEdgeActivity() {
                 else -> false
             }
         }
+
+        // App shortcut deep link (res/xml/shortcuts.xml) — "Transactions" opens straight to the list.
+        if (intent.getStringExtra("open_tab") == "expenses") {
+            binding.bottomNav.selectedItemId = R.id.nav_expenses
+        }
     }
 
     override fun onResume() {

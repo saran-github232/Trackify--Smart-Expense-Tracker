@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="add_expense"
+        android:enabled="true"
+        android:icon="@drawable/ic_nav_add"
+        android:shortcutShortLabel="@string/add_expense"
+        android:shortcutLongLabel="@string/add_expense">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saran.expensemanager"
+            android:targetClass="com.saran.expensemanager.AddExpenseActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="transactions"
+        android:enabled="true"
+        android:icon="@drawable/ic_nav_expenses"
+        android:shortcutShortLabel="@string/expense_list"
+        android:shortcutLongLabel="@string/expense_list">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saran.expensemanager"
+            android:targetClass="com.saran.expensemanager.MainActivity">
+            <extra android:name="open_tab" android:value="expenses" />
+        </intent>
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="dashboard"
+        android:enabled="true"
+        android:icon="@drawable/ic_nav_home"
+        android:shortcutShortLabel="@string/dashboard"
+        android:shortcutLongLabel="@string/dashboard">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.saran.expensemanager"
+            android:targetClass="com.saran.expensemanager.MainActivity" />
+    </shortcut>
+</shortcuts>

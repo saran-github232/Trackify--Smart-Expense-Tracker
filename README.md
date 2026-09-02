@@ -10,10 +10,23 @@ your device; nothing is sent anywhere unless you explicitly turn on
   spending chart, financial health score, budget tracking.
 - **Expenses & Income** — add, edit, delete, search, filter by category/date
   range, sort by date or amount, swipe-to-delete with undo, CSV export.
-- **Recurring expenses** — auto-added each month on a scheduled day.
+- **Recurring expenses** — auto-added each month on a scheduled day, plus a
+  reminder notification a configurable number of days beforehand.
+- **Budget alerts** — a local notification once monthly spend crosses a
+  threshold (default 90%) of your set budget.
 - **Savings goals**, **PIN app lock**, dark/light theme.
 - **Shake to Add Expense** — shake your phone while the app is open to jump
   straight into Add Expense. See below.
+- **Fast capture, five ways**: the bottom-nav **+**, **Shake**, a **home
+  screen widget**, a **Quick Settings tile**, and **Voice** ("spent 500 on
+  groceries") all land in the same Add Expense screen, pre-filled where
+  possible, for you to review and save. Static **app shortcuts**
+  (long-press the launcher icon) jump straight to Add Expense, Transactions,
+  or Dashboard.
+- **Smart suggestions** — typing a title you've used before auto-fills the
+  category you picked last time (`MerchantMemory.kt`, all on-device, no
+  cloud AI); your 5 most recently used categories and common ₹ amounts show
+  as quick-pick chips in Add Expense.
 - **Google Sheets sync (optional)** — back up expenses to a spreadsheet you
   own and control. See [`GOOGLE_SHEETS_SETUP.md`](GOOGLE_SHEETS_SETUP.md).
 - **Ads** — AdMob banner + native ad on the dashboard, and an interstitial
@@ -43,6 +56,24 @@ Enable it from **Settings → Quick Expense**.
   instead of silently failing.
 - Turning it on shows a short onboarding dialog with a live "shake now to
   test" check, using the same detector class the real feature uses.
+
+## Fast capture entry points
+
+All of these open the **same** `AddExpenseActivity` form (so validation, ad
+flow, and Sheets sync are shared, not duplicated) — some just pre-fill it:
+
+| Entry point | How | File |
+|---|---|---|
+| Shake | see [Shake to Add Expense](#shake-to-add-expense) | `ShakeDetector.kt` |
+| Home screen widget | classic `AppWidgetProvider` + `RemoteViews` — no Jetpack Glance/Compose dependency added, since the rest of the app is View-based | `ExpenseWidgetProvider.kt` |
+| Quick Settings tile | `TileService`, add via the QS panel's edit pencil | `QuickExpenseTileService.kt` |
+| App shortcuts | long-press the launcher icon | `res/xml/shortcuts.xml` |
+| Voice | bottom-sheet "Add by Voice" → Android's built-in speech recognizer activity (no `RECORD_AUDIO` permission needed — recognition happens in a separate system/Assistant app, not in-process) → a plain keyword/regex parser guesses amount/category/title → opens Add Expense pre-filled for you to correct and save | `VoiceExpenseParser.kt` |
+
+The widget refreshes automatically after any add/edit/delete/clear — every
+write funnels through `DatabaseHelper`, which pings
+`ExpenseWidgetProvider.updateAll()` once, rather than every call site
+remembering to refresh it.
 
 ## Google Sheets Sync (optional)
 
@@ -96,4 +127,17 @@ or any full JDK 17+/21) — see `gradle/gradle-daemon-jvm.properties`.
 All financial data is stored locally in SQLite. Google Sheets sync is opt-in
 and points only at infrastructure you control. AdMob ad unit IDs are public
 identifiers (not secrets); the release signing key and its passwords are
-excluded from version control via `.gitignore`.
+excluded from version control via `.gitignore`. Notification permission
+(Android 13+) is requested at most once, only if you've set a budget or a
+recurring expense — declining it once is respected and the app never asks
+again (`NotificationHelper.kt`).
+
+## What isn't built yet
+
+This app intentionally does **not** implement the full 105-section feature
+wishlist some reference specs describe. Explicitly out of scope so far:
+receipt/OCR scanning, split expenses, multi-currency, multiple payment
+accounts, travel mode, subscription tracker, backup/restore, PDF/yearly
+reports, natural-language search, and share-to-app SMS/UPI parsing. Back-tap
+gesture detection is deliberately not implemented — Android has no universal
+third-party API for it, so shake is the supported gesture.

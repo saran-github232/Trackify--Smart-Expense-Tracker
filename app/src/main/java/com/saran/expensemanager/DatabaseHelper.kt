@@ -9,6 +9,8 @@ import java.util.Calendar
 class DatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
+    private val appContext = context.applicationContext
+
     companion object {
         private const val DATABASE_NAME = "expense_manager.db"
         private const val DATABASE_VERSION = 4
@@ -134,8 +136,13 @@ class DatabaseHelper(context: Context) :
             put(COL_DATE, expense.date)
             put(COL_NOTES, expense.notes)
         }
-        return writableDatabase.insert(TABLE, null, cv)
+        val id = writableDatabase.insert(TABLE, null, cv)
+        if (id > 0) notifyWidgets()
+        return id
     }
+
+    /** Every write funnels through here, so the home-screen widget refreshes no matter the caller. */
+    private fun notifyWidgets() = ExpenseWidgetProvider.updateAll(appContext)
 
     fun getAllExpenses(): List<Expense> {
         val list = mutableListOf<Expense>()
@@ -154,11 +161,27 @@ class DatabaseHelper(context: Context) :
             put(COL_NOTES, expense.notes)
             put(COL_SYNC_STATUS, SYNC_PENDING)
         }
-        return writableDatabase.update(TABLE, cv, "$COL_ID = ?", arrayOf(expense.id.toString()))
+        val rows = writableDatabase.update(TABLE, cv, "$COL_ID = ?", arrayOf(expense.id.toString()))
+        if (rows > 0) notifyWidgets()
+        return rows
     }
 
-    fun deleteExpense(id: Long): Int =
-        writableDatabase.delete(TABLE, "$COL_ID = ?", arrayOf(id.toString()))
+    fun deleteExpense(id: Long): Int {
+        val rows = writableDatabase.delete(TABLE, "$COL_ID = ?", arrayOf(id.toString()))
+        if (rows > 0) notifyWidgets()
+        return rows
+    }
+
+    fun getTodayTotal(): Double {
+        val today = "%04d-%02d-%02d".format(
+            Calendar.getInstance()[Calendar.YEAR],
+            Calendar.getInstance()[Calendar.MONTH] + 1,
+            Calendar.getInstance()[Calendar.DAY_OF_MONTH],
+        )
+        readableDatabase.rawQuery(
+            "SELECT COALESCE(SUM($COL_AMOUNT), 0) FROM $TABLE WHERE $COL_DATE = ?", arrayOf(today)
+        ).use { return if (it.moveToFirst()) it.getDouble(0) else 0.0 }
+    }
 
     // ── Google Sheets sync ───────────────────────────────────────────────────
 
@@ -488,5 +511,6 @@ class DatabaseHelper(context: Context) :
             delete(RECURRING_TABLE, null, null)
             delete(GOALS_TABLE, null, null)
         }
+        notifyWidgets()
     }
 }

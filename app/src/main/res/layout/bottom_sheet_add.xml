@@ -111,6 +111,7 @@
         android:id="@+id/cardAddIncome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="?attr/colorSecondaryContainer"
@@ -176,6 +177,78 @@
                 android:layout_height="wrap_content"
                 android:text="›"
                 android:textColor="?attr/colorOnSecondaryContainer"
+                android:textSize="24sp"
+                android:alpha="0.6" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Add by Voice Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardVoiceAdd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:rippleColor="?attr/colorPrimary">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <FrameLayout
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="16dp">
+
+                <View
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_category_badge"
+                    android:backgroundTint="?attr/colorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="🎤"
+                    android:textSize="20sp" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_by_voice"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/add_by_voice_desc"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:textSize="12sp"
+                    android:alpha="0.7" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textColor="?attr/colorOnPrimaryContainer"
                 android:textSize="24sp"
                 android:alpha="0.6" />
         </LinearLayout>
