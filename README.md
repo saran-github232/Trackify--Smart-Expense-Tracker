@@ -185,6 +185,55 @@ excluded from version control via `.gitignore`. Notification permission
 recurring expense — declining it once is respected and the app never asks
 again (`NotificationHelper.kt`).
 
+## Testing
+
+Every feature above was exercised end-to-end on a Pixel 10 Pro emulator
+(API 37, Google APIs + Play Store image) — not just compiled, actually run
+and tapped through with `adb`/`uiautomator`, screenshotted at each step, and
+checked against logcat for crashes. This found and fixed two real bugs:
+
+- **Subscription tracker was wired to dead code.** Dashboard's "Recurring"
+  quick action launches `RecurringActivity`, a separate pre-existing class
+  from `RecurringFragment` (which nothing referenced — a leftover from
+  before this work). The subscription checkbox and monthly/annual total had
+  only been added to the unreachable `RecurringFragment`. Fixed by porting
+  the feature into `RecurringActivity` and deleting the dead fragment.
+- **Static app shortcuts never registered.** Their manifest meta-data
+  (`android.app.shortcuts`) was declared on `MainActivity`, but Android
+  requires it on the activity that actually holds the `MAIN`/`LAUNCHER`
+  intent-filter — `SplashActivity` here, which forwards to `MainActivity`.
+  `dumpsys shortcut` showed zero shortcuts until this moved; all three
+  (Add Expense / Transactions / Dashboard) now register and resolve
+  correctly.
+
+Verified working: onboarding → dashboard → add/edit/delete expense with
+payment method → interstitial ad → dashboard refresh; add income with the
+Income/Transfer toggle (confirmed transfers are excluded from income totals
+but still listed); split-expense dialog; the search box's natural-language
+parsing (`"shopping above 500"` correctly returns zero results, proving it's
+a real filter and not decoration); recurring/subscription add flow and its
+monthly/annual total; Settings' Shake toggle, sensitivity, and live test
+dialog; the Currency picker changing every displayed amount app-wide
+instantly (Dashboard, Analytics, Recurring, transaction list — verified in
+both directions, INR↔USD); Share → Trackify parsing a bank-SMS-shaped string
+into amount/category/notes; the Google Sheets **Test Connection** button
+reaching a real deployed Apps Script endpoint and correctly surfacing its
+`Invalid access token` response (proving the network/JSON round-trip works —
+full success needs the real token, which stays local to your device);
+per-row Synced/Pending/**Sync failed** status rendering correctly on actual
+failed syncs; the Backup Data flow launching Android's real "Save As" picker
+with the expected suggested filename; and the app shortcut / widget /
+Quick Settings tile provider registrations, confirmed via `dumpsys` after
+the fix above.
+
+**Not testable in this environment**, so unverified beyond code review and a
+clean build: physically shaking a device (the emulator's console sensor
+injection didn't reliably reach the accelerometer listener — a tooling gap,
+not evidence of an app bug, since the same detector class is proven live by
+the in-Settings test dialog), real speech input to the voice flow, a real
+photographed receipt for OCR, and completing the Restore/Import file pickers
+end-to-end. These should get a pass on a physical device before shipping.
+
 ## What isn't built yet
 
 Everything from a 105-section "real-world features" reference spec's P0 and
