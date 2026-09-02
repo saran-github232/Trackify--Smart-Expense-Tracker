@@ -91,7 +91,7 @@ class RecurringFragment : Fragment() {
 
         val monthlyTotal = list.filter { it.isSubscription }.sumOf { it.amount }
         if (monthlyTotal > 0) {
-            val fmt = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("en-IN"))
+            val fmt = CurrencyFormatter.currencyInstance(requireContext())
             binding.tvSubscriptionTotal.text =
                 "${getString(R.string.monthly_subscription_total, fmt.format(monthlyTotal))} · " +
                     getString(R.string.annual_subscription_total, fmt.format(monthlyTotal * 12))

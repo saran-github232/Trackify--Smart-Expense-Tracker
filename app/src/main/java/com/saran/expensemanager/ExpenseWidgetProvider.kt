@@ -7,8 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import java.text.NumberFormat
-import java.util.Locale
 
 /** Home-screen widget: today/this-month totals + a direct "Add Expense" button. */
 class ExpenseWidgetProvider : AppWidgetProvider() {
@@ -26,11 +24,10 @@ class ExpenseWidgetProvider : AppWidgetProvider() {
 
         private fun updateOne(context: Context, manager: AppWidgetManager, widgetId: Int) {
             val db = DatabaseHelper.getInstance(context)
-            val fmt = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
 
             val views = RemoteViews(context.packageName, R.layout.widget_expense)
-            views.setTextViewText(R.id.tvWidgetToday, fmt.format(db.getTodayTotal()))
-            views.setTextViewText(R.id.tvWidgetMonth, fmt.format(db.getCurrentMonthTotal()))
+            views.setTextViewText(R.id.tvWidgetToday, CurrencyFormatter.format(context, db.getTodayTotal()))
+            views.setTextViewText(R.id.tvWidgetMonth, CurrencyFormatter.format(context, db.getCurrentMonthTotal()))
 
             val addIntent = Intent(context, AddExpenseActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             views.setOnClickPendingIntent(

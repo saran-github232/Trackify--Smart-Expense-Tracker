@@ -8,15 +8,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.saran.expensemanager.databinding.ItemIncomeBinding
-import java.text.NumberFormat
-import java.util.Locale
 
 class IncomeAdapter(
     private val onDelete: (Income) -> Unit,
     private val onEdit: (Income) -> Unit = {}
 ) : ListAdapter<Income, IncomeAdapter.ViewHolder>(DIFF) {
-
-    private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     private val sourceColors = mapOf(
         "Salary" to "#4CAF50",
@@ -46,7 +42,7 @@ class IncomeAdapter(
                 income.source
             }
             binding.tvIncomeDate.text = income.date
-            binding.tvIncomeAmount.text = "+${fmt.format(income.amount)}"
+            binding.tvIncomeAmount.text = "+${CurrencyFormatter.format(binding.root.context, income.amount)}"
 
             val colorHex = sourceColors[income.source] ?: "#9E9E9E"
             val color = Color.parseColor(colorHex)

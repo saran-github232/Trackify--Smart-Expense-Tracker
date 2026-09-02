@@ -15,14 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
-import java.util.Locale
 
 class AnalyticsFragment : Fragment() {
 
     private var _binding: ActivityAnalyticsBinding? = null
     private val binding get() = _binding!!
     private lateinit var db: DatabaseHelper
-    private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    private lateinit var fmt: NumberFormat
 
     private val categoryColors = mapOf(
         "Food" to "#FF6B6B",
@@ -56,6 +55,7 @@ class AnalyticsFragment : Fragment() {
         binding.appBar.applyTopSystemBarInsetPadding()
         binding.toolbar.navigationIcon = null
         db = DatabaseHelper.getInstance(requireContext())
+        fmt = CurrencyFormatter.currencyInstance(requireContext())
     }
 
     override fun onResume() {

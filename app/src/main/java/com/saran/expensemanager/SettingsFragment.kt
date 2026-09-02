@@ -27,6 +27,7 @@ class SettingsFragment : Fragment() {
     private lateinit var userPrefs: UserPrefs
     private lateinit var shakePrefs: ShakePrefs
     private lateinit var sheetSyncPrefs: SheetSyncPrefs
+    private lateinit var currencyPrefs: CurrencyPrefs
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
@@ -39,6 +40,7 @@ class SettingsFragment : Fragment() {
         userPrefs = UserPrefs(requireContext())
         shakePrefs = ShakePrefs(requireContext())
         sheetSyncPrefs = SheetSyncPrefs(requireContext())
+        currencyPrefs = CurrencyPrefs(requireContext())
 
         binding.appBar.applyTopSystemBarInsetPadding()
         binding.toolbar.setNavigationOnClickListener {
@@ -50,6 +52,31 @@ class SettingsFragment : Fragment() {
         binding.llClearData.setOnClickListener { confirmClearData() }
         setupShakeSection()
         setupSheetSyncSection()
+        setupCurrencySection()
+    }
+
+    private fun setupCurrencySection() {
+        updateCurrencyLabel()
+        binding.llCurrencyRow.setOnClickListener { showCurrencyPicker() }
+    }
+
+    private fun updateCurrencyLabel() {
+        binding.tvCurrentCurrency.text = currencyPrefs.currencyCode
+    }
+
+    private fun showCurrencyPicker() {
+        val codes = CurrencyPrefs.SUPPORTED.keys.toList()
+        val current = codes.indexOf(currencyPrefs.currencyCode).coerceAtLeast(0)
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.display_currency)
+            .setSingleChoiceItems(codes.toTypedArray(), current) { dialog, which ->
+                currencyPrefs.currencyCode = codes[which]
+                updateCurrencyLabel()
+                Toast.makeText(requireContext(), getString(R.string.currency_changed, codes[which]), Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun setupShakeSection() {

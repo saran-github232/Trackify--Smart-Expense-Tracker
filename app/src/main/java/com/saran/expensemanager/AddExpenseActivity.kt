@@ -21,7 +21,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.saran.expensemanager.databinding.ActivityAddExpenseBinding
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -156,7 +155,7 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
                 val people = etPeople.text.toString().toIntOrNull()
                 if (total != null && total > 0 && people != null && people > 0) {
                     val share = total / people
-                    val fmt = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
+                    val fmt = CurrencyFormatter.currencyInstance(this@AddExpenseActivity)
                     binding.etAmount.setText(
                         if (share % 1.0 == 0.0) share.toLong().toString() else "%.2f".format(share)
                     )

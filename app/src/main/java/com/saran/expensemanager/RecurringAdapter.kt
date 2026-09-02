@@ -35,7 +35,7 @@ class RecurringAdapter(
         b.tvRecurringTitle.text = item.title
         val subscriptionSuffix = if (item.isSubscription) " • Subscription" else ""
         b.tvRecurringDetail.text = "Every ${ordinal(item.dayOfMonth)} • ${item.category}$subscriptionSuffix"
-        b.tvRecurringAmount.text = "₹${String.format("%.0f", item.amount)}"
+        b.tvRecurringAmount.text = CurrencyFormatter.format(b.root.context, item.amount)
 
         val color = Color.parseColor(categoryColors[item.category] ?: "#90A4AE")
         b.vRecurringBadge.background = GradientDrawable().apply {

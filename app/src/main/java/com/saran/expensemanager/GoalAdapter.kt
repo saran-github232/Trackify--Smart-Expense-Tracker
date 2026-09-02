@@ -9,15 +9,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.saran.expensemanager.databinding.ItemGoalBinding
-import java.text.NumberFormat
-import java.util.Locale
 
 class GoalAdapter(
     private val onAddMoney: (Goal) -> Unit,
     private val onDelete: (Goal) -> Unit
 ) : ListAdapter<Goal, GoalAdapter.ViewHolder>(DIFF) {
-
-    private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<Goal>() {
@@ -29,8 +25,8 @@ class GoalAdapter(
     inner class ViewHolder(private val b: ItemGoalBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(goal: Goal) {
             b.tvGoalName.text = goal.name
-            b.tvGoalSaved.text = fmt.format(goal.savedAmount)
-            b.tvGoalTarget.text = fmt.format(goal.targetAmount)
+            b.tvGoalSaved.text = CurrencyFormatter.format(b.root.context, goal.savedAmount)
+            b.tvGoalTarget.text = CurrencyFormatter.format(b.root.context, goal.targetAmount)
             b.tvGoalPercent.text = "${goal.progress}%"
 
             if (goal.deadline.isNotBlank()) {

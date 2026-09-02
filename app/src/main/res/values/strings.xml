@@ -120,6 +120,11 @@
     <string name="annual_subscription_total">≈ %1$s / year</string>
     <string name="no_subscriptions">No subscriptions marked yet</string>
 
+    <!-- Currency -->
+    <string name="section_currency">CURRENCY</string>
+    <string name="display_currency">Display Currency</string>
+    <string name="currency_changed">Currency updated — new amounts will show in %1$s</string>
+
     <!-- Actions -->
     <string name="save_expense">Save Expense</string>
     <string name="update_expense">Update Expense</string>

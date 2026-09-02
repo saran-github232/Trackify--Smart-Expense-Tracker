@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
-import java.util.Locale
 
 class GoalsFragment : Fragment() {
 
@@ -26,7 +25,7 @@ class GoalsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var db: DatabaseHelper
     private lateinit var adapter: GoalAdapter
-    private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    private lateinit var fmt: NumberFormat
 
     private val goalColors = listOf(
         "#22C55E", "#3B82F6", "#8B5CF6", "#F59E0B",
@@ -41,6 +40,7 @@ class GoalsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         db = DatabaseHelper.getInstance(requireContext())
+        fmt = CurrencyFormatter.currencyInstance(requireContext())
 
         binding.appBar.applyTopSystemBarInsetPadding()
         binding.toolbar.setNavigationOnClickListener {

@@ -10,15 +10,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.saran.expensemanager.databinding.ItemExpenseBinding
-import java.text.NumberFormat
-import java.util.Locale
 
 class ExpenseAdapter(
     private val onEdit: (Expense) -> Unit,
     private val onDelete: (Expense) -> Unit,
 ) : ListAdapter<Expense, ExpenseAdapter.ViewHolder>(ExpenseDiffCallback()) {
 
-    private val fmt = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
     private var syncPrefs: SheetSyncPrefs? = null
 
     private val categoryColors = mapOf(
@@ -51,7 +48,7 @@ class ExpenseAdapter(
     inner class ViewHolder(private val b: ItemExpenseBinding) : RecyclerView.ViewHolder(b.root) {
         fun bind(expense: Expense) {
             b.tvTitle.text = expense.title
-            b.tvAmount.text = fmt.format(expense.amount)
+            b.tvAmount.text = CurrencyFormatter.format(b.root.context, expense.amount)
             b.tvCategory.text = if (expense.paymentMethod.isNotBlank()) {
                 "${expense.category} · ${expense.paymentMethod}"
             } else {

@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Calendar
-import java.util.Locale
 import kotlin.math.abs
 
 class DashboardFragment : Fragment() {
@@ -47,7 +46,7 @@ class DashboardFragment : Fragment() {
     private lateinit var reminderPrefs: ReminderPrefs
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* re-checked on next refresh */ }
-    private val fmt = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    private lateinit var fmt: NumberFormat
     private var nativeAd: NativeAd? = null
     private var bannerAdView: AdView? = null
 
@@ -88,6 +87,7 @@ class DashboardFragment : Fragment() {
         budgetPrefs = BudgetPrefs(requireContext())
         userPrefs = UserPrefs(requireContext())
         reminderPrefs = ReminderPrefs(requireContext())
+        fmt = CurrencyFormatter.currencyInstance(requireContext())
 
         binding.headerContainer.applyTopSystemBarInsetPadding()
 
