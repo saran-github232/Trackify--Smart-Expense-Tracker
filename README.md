@@ -51,16 +51,24 @@ your device; nothing is sent anywhere unless you explicitly turn on
 
 Enable it from **Settings → Quick Expense**.
 
-- Uses only the device accelerometer — no extra runtime permission, since
-  motion sensors don't require one on Android.
-- Detection only runs while the app is in the foreground (`MainActivity`
-  resumed). Android does not offer a reliable, battery-safe way to detect a
-  shake while the app is backgrounded or killed, so this app doesn't pretend
-  to — it's an in-app shortcut, not a background always-on listener. It's
-  automatically suspended while `AddExpenseActivity`/`AddIncomeActivity` (and
-  their post-save interstitial ad) are on top, so it can never fire on top of
-  an ad or double-open the entry screen.
-  ([`MainActivity.onResume`/`onPause`](app/src/main/java/com/saran/expensemanager/MainActivity.kt))
+- Works anywhere — home screen, lock screen, or inside another app — not just
+  while Trackify is open. Android only allows continuous accelerometer access
+  outside your own foreground Activity through a foreground service, so
+  turning this on starts `ShakeOverlayService`, which shows a permanent
+  low-priority "Shake to add expense is on" notification for as long as the
+  feature is enabled. That notification is a platform requirement, not a
+  design choice — there's no way to listen for a shake in the background
+  without it.
+- On a shake, the service launches `QuickAddOverlayActivity`: a small floating
+  card (amount + category + optional remarks, no title field — remarks or the
+  category becomes the title) that draws on top of whatever's on screen,
+  including a locked screen (`setShowWhenLocked`/`setTurnScreenOn`, the same
+  mechanism incoming-call UI uses), and saves straight to the database without
+  opening the rest of the app.
+- Suspended while `AddExpenseActivity`/`AddIncomeActivity` (and their post-save
+  interstitial ad) — or the overlay card itself — are on top, via a shared
+  `ShakeSuppressor` flag each of those sets in `onResume`/`onPause`, so it can
+  never double-open or stack on top of itself.
 - Requires 3 distinct jolts above the sensitivity threshold within a 1-second
   window (`ShakeDetector.kt`) — a single bump (picking the phone up, setting
   it down) won't trigger it. A 2-second cooldown after a trigger prevents
@@ -69,11 +77,13 @@ Enable it from **Settings → Quick Expense**.
   the device has no accelerometer, the toggle is disabled with an explanation
   instead of silently failing.
 - Turning it on shows a short onboarding dialog with a live "shake now to
-  test" check, using the same detector class the real feature uses.
-- Settings lives as a fragment inside `MainActivity`, so toggling shake on/off
-  or changing sensitivity there doesn't go through `onResume`/`onPause` — the
-  detector is re-applied immediately via `MainActivity.refreshShakeDetector()`
-  instead of waiting for the next app resume.
+  test" check, using the same detector class the real feature uses, and — on
+  Android 13+ — prompts for notification permission so the background service
+  notification is actually visible.
+- Doesn't survive a device reboot on its own (no `BOOT_COMPLETED` receiver —
+  not worth the added background-start complexity); it's re-started the next
+  time the app is opened (`SplashActivity`), which for most people is close
+  enough to "always on."
 
 ## Fast capture entry points
 
@@ -190,6 +200,10 @@ recurring expense — declining it once is respected and the app never asks
 again (`NotificationHelper.kt`).
 
 ## Testing
+
+See [`PENDING_TASKS.md`](PENDING_TASKS.md) for the shake-to-add background
+overlay's real-device test checklist (not yet run — no device access during
+development).
 
 Every feature above was exercised end-to-end on a Pixel 10 Pro emulator
 (API 37, Google APIs + Play Store image) — not just compiled, actually run

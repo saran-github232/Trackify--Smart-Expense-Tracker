@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:allowBackup="true"
@@ -99,6 +101,24 @@
             android:exported="false"
             android:label="@string/edit_income"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".QuickAddOverlayActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:theme="@style/Theme.ExpenseManager.FloatingCard"
+            android:turnScreenOn="true" />
+
+        <service
+            android:name=".ShakeOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="shake_to_add_expense" />
+        </service>
 
         <service
             android:name=".QuickExpenseTileService"

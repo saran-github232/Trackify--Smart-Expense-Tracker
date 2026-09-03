@@ -270,7 +270,7 @@
     <!-- Quick Expense (Shake to Add) -->
     <string name="section_quick_expense">QUICK EXPENSE</string>
     <string name="shake_to_add">Shake to Add Expense</string>
-    <string name="shake_to_add_desc">Shake your phone while Trackify is open to jump straight to Add Expense</string>
+    <string name="shake_to_add_desc">Shake your phone anywhere — home screen, lock screen, or another app — to pop up a quick add-expense card</string>
     <string name="shake_sensitivity">Sensitivity</string>
     <string name="sensitivity_low">Low</string>
     <string name="sensitivity_medium">Medium</string>
@@ -278,8 +278,14 @@
     <string name="shake_vibrate">Vibrate on Shake</string>
     <string name="shake_unavailable">Not available on this device — no motion sensor found</string>
     <string name="shake_onboarding_title">Shake to Add Expense</string>
-    <string name="shake_onboarding_message">Shake your phone firmly while the app is open and Trackify will jump straight to Add Expense. It only reads the motion sensor already built into your phone — no extra permissions, nothing sent anywhere.\n\nTry it now — shake your phone!</string>
+    <string name="shake_onboarding_message">Shake your phone firmly and a quick add-expense card will pop up — even on the lock screen or inside another app. This keeps a low-priority background notification running so Android lets Trackify keep listening for the shake.\n\nTry it now — shake your phone!</string>
     <string name="shake_detected">Shake detected! ✓</string>
+    <string name="shake_service_notif_title">Shake to add expense is on</string>
+    <string name="shake_service_notif_body">Listening for a shake — tap to open Trackify</string>
+
+    <!-- Quick Add overlay card -->
+    <string name="quick_add_title">Quick Add Expense</string>
+    <string name="quick_add_remarks_hint">Remarks (optional)</string>
 
     <!-- Google Sheets Sync -->
     <string name="section_sheet_sync">GOOGLE SHEETS SYNC</string>

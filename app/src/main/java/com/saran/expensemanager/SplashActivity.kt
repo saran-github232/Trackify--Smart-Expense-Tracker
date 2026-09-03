@@ -39,6 +39,10 @@ class SplashActivity : EdgeToEdgeActivity() {
 
         Thread { MobileAds.initialize(applicationContext) {} }.start()
 
+        // Background shake listener doesn't survive a device reboot (no BOOT_COMPLETED receiver —
+        // not worth the added background-start complexity), so make sure it's running again here.
+        if (ShakePrefs(this).enabled) ShakeOverlayService.start(this)
+
         binding.ivLogo.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in))
         binding.tvAppName.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left))
         binding.tvTagline.startAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in))

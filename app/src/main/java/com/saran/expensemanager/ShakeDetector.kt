@@ -31,7 +31,12 @@ class ShakeDetector(
     private var lastShakeAt = 0L
 
     fun start() {
-        accelerometer?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+        accelerometer?.let {
+            // Unregister first so a repeat start() (e.g. sensitivity changed while already running)
+            // updates in place instead of stacking a second registration for the same listener.
+            sensorManager.unregisterListener(this, it)
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+        }
     }
 
     fun stop() {

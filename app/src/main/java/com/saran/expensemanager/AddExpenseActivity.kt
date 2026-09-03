@@ -297,6 +297,16 @@ class AddExpenseActivity : EdgeToEdgeActivity() {
         return ok
     }
 
+    override fun onResume() {
+        super.onResume()
+        ShakeSuppressor.suppressed = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ShakeSuppressor.suppressed = false
+    }
+
     override fun onSupportNavigateUp(): Boolean { finish(); return true }
 
     companion object {

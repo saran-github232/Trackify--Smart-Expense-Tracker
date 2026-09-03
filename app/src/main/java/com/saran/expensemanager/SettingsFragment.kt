@@ -65,6 +65,15 @@ class SettingsFragment : Fragment() {
 
     // ── Import / Export / Backup / Restore ───────────────────────────────────
 
+    private val shakeNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) return
+        if (NotificationHelper.hasPermission(requireContext())) return
+        shakeNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    }
+
     private val importCsvLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { importCsv(it) }
     }
@@ -217,8 +226,13 @@ class SettingsFragment : Fragment() {
         binding.switchShake.setOnCheckedChangeListener { _, checked ->
             shakePrefs.enabled = checked
             binding.llShakeOptions.visibility = if (checked) View.VISIBLE else View.GONE
-            (requireActivity() as MainActivity).refreshShakeDetector()
-            if (checked) showShakeOnboarding()
+            if (checked) {
+                requestNotificationPermissionIfNeeded()
+                ShakeOverlayService.start(requireContext())
+                showShakeOnboarding()
+            } else {
+                ShakeOverlayService.stop(requireContext())
+            }
         }
         binding.toggleSensitivity.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
@@ -227,7 +241,7 @@ class SettingsFragment : Fragment() {
                 R.id.btnSensHigh -> ShakePrefs.SENSITIVITY_HIGH
                 else -> ShakePrefs.SENSITIVITY_MEDIUM
             }
-            (requireActivity() as MainActivity).refreshShakeDetector()
+            if (shakePrefs.enabled) ShakeOverlayService.start(requireContext())
         }
         binding.switchVibrate.setOnCheckedChangeListener { _, checked -> shakePrefs.vibrate = checked }
     }
