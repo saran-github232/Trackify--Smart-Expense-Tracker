@@ -217,6 +217,7 @@ class SettingsFragment : Fragment() {
         binding.switchShake.setOnCheckedChangeListener { _, checked ->
             shakePrefs.enabled = checked
             binding.llShakeOptions.visibility = if (checked) View.VISIBLE else View.GONE
+            (requireActivity() as MainActivity).refreshShakeDetector()
             if (checked) showShakeOnboarding()
         }
         binding.toggleSensitivity.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -226,6 +227,7 @@ class SettingsFragment : Fragment() {
                 R.id.btnSensHigh -> ShakePrefs.SENSITIVITY_HIGH
                 else -> ShakePrefs.SENSITIVITY_MEDIUM
             }
+            (requireActivity() as MainActivity).refreshShakeDetector()
         }
         binding.switchVibrate.setOnCheckedChangeListener { _, checked -> shakePrefs.vibrate = checked }
     }

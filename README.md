@@ -70,6 +70,10 @@ Enable it from **Settings → Quick Expense**.
   instead of silently failing.
 - Turning it on shows a short onboarding dialog with a live "shake now to
   test" check, using the same detector class the real feature uses.
+- Settings lives as a fragment inside `MainActivity`, so toggling shake on/off
+  or changing sensitivity there doesn't go through `onResume`/`onPause` — the
+  detector is re-applied immediately via `MainActivity.refreshShakeDetector()`
+  instead of waiting for the next app resume.
 
 ## Fast capture entry points
 

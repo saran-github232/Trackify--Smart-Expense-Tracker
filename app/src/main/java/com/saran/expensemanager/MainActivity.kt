@@ -53,16 +53,26 @@ class MainActivity : EdgeToEdgeActivity() {
         // Shake detection only runs while this Activity is on top, so it's automatically
         // suspended during AddExpenseActivity/AddIncomeActivity — including while their
         // post-save interstitial ad is showing — and resumes cleanly once back here.
-        if (shakePrefs.enabled && shakeDetector.isAvailable) {
-            shakeDetector.thresholdG = shakePrefs.thresholdG
-            shakeDetector.start()
-        }
+        refreshShakeDetector()
         SheetSyncManager.triggerSync(this)
     }
 
     override fun onPause() {
         super.onPause()
         shakeDetector.stop()
+    }
+
+    /**
+     * Re-applies the current shake prefs to the live detector. Settings lives as a fragment
+     * inside this Activity (no onResume when it's opened/closed), so toggling shake on/off or
+     * changing sensitivity there has no effect unless it calls this directly.
+     */
+    fun refreshShakeDetector() {
+        shakeDetector.stop()
+        if (shakePrefs.enabled && shakeDetector.isAvailable) {
+            shakeDetector.thresholdG = shakePrefs.thresholdG
+            shakeDetector.start()
+        }
     }
 
     private fun onShakeDetected() {
