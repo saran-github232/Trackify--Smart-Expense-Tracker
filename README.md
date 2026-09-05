@@ -15,8 +15,8 @@ your device; nothing is sent anywhere unless you explicitly turn on
 - **Budget alerts** — a local notification once monthly spend crosses a
   threshold (default 90%) of your set budget.
 - **Savings goals**, **PIN app lock**, dark/light theme.
-- **Shake to Add Expense** — shake your phone while the app is open to jump
-  straight into Add Expense. See below.
+- **Shake to Add Expense** — shake your phone anywhere (home screen, lock
+  screen, other apps) to pop a quick-add card on the spot — no app launch. See below.
 - **Fast capture, seven ways**: the bottom-nav **+**, **Shake**, a **home
   screen widget**, a **Quick Settings tile**, **Voice** ("spent 500 on
   groceries"), **Scan Receipt** (on-device OCR), and **Share → Trackify**
@@ -59,12 +59,29 @@ Enable it from **Settings → Quick Expense**.
   feature is enabled. That notification is a platform requirement, not a
   design choice — there's no way to listen for a shake in the background
   without it.
-- On a shake, the service launches `QuickAddOverlayActivity`: a small floating
-  card (amount + category + optional remarks, no title field — remarks or the
-  category becomes the title) that draws on top of whatever's on screen,
-  including a locked screen (`setShowWhenLocked`/`setTurnScreenOn`, the same
-  mechanism incoming-call UI uses), and saves straight to the database without
-  opening the rest of the app.
+- On a shake, the service pops the quick-add banner **directly as a system
+  overlay window** (`QuickAddOverlay` hosting `QuickAddBannerView` via
+  `WindowManager`'s `TYPE_APPLICATION_OVERLAY`): a three-step card (amount on
+  a built-in keypad → category → optional remarks; no title field — remarks or
+  the category becomes the title) that draws on top of whatever's on screen —
+  home screen, another app, or a locked screen (the display is woken if it was
+  off) — and saves straight to the database without opening the rest of the
+  app. A shake **never launches an activity**: startActivity() from a service
+  is exactly what Android 10+ silently blocks, and yanking the user into the
+  app defeats the point — so there is no fallback activity at all anymore.
+  The card slides down from the top edge, shows a 3-dot step indicator, and
+  dismisses when you tap outside it, hit ✕/Cancel, or finish step 3.
+- The amount step uses a built-in keypad on purpose: Android never shows the
+  system keyboard over the lock screen, so the card types its own amount
+  (with haptic ticks per key, and the symbol from your currency setting).
+  Remarks stay optional for the same reason (the remarks step flips the
+  overlay window to focusable so the keyboard can appear on the home screen
+  or inside another app).
+- The overlay needs the **"Display over other apps"** permission — Settings
+  prompts for it right after the toggle is enabled. If it hasn't been granted
+  yet, a shake shows a short toast plus a one-time (per service start)
+  heads-up notification whose tap opens the permission toggle directly —
+  it never opens the app's UI.
 - Suspended while `AddExpenseActivity`/`AddIncomeActivity` (and their post-save
   interstitial ad) — or the overlay card itself — are on top, via a shared
   `ShakeSuppressor` flag each of those sets in `onResume`/`onPause`, so it can
@@ -79,7 +96,8 @@ Enable it from **Settings → Quick Expense**.
 - Turning it on shows a short onboarding dialog with a live "shake now to
   test" check, using the same detector class the real feature uses, and — on
   Android 13+ — prompts for notification permission so the background service
-  notification is actually visible.
+  notification is actually visible, plus the overlay permission dialog so the
+  card can actually pop over other apps.
 - Doesn't survive a device reboot on its own (no `BOOT_COMPLETED` receiver —
   not worth the added background-start complexity); it's re-started the next
   time the app is opened (`SplashActivity`), which for most people is close
@@ -174,7 +192,9 @@ BackupManager / CsvImportManager / PdfReportGenerator — data in/out,
    independent of the sync layer (org.json + platform PdfDocument, no libs)
 
 ShakeDetector — isolated SensorEventListener, independent of any UI,
-   only wired up by MainActivity while it's in the foreground
+   wired up by MainActivity while it's in the foreground and by
+   ShakeOverlayService in the background (which pops QuickAddBannerView as a
+   system overlay window via QuickAddOverlay — no activity launch involved)
 VoiceExpenseParser / ReceiptParser / NaturalSearchParser — plain regex/
    keyword parsers, no cloud AI, each testable standalone
 ```
@@ -201,9 +221,11 @@ again (`NotificationHelper.kt`).
 
 ## Testing
 
-See [`PENDING_TASKS.md`](PENDING_TASKS.md) for the shake-to-add background
-overlay's real-device test checklist (not yet run — no device access during
-development).
+See [`PENDING_TASKS.md`](PENDING_TASKS.md) for the shake-to-add overlay's
+real-device test checklist — partially run on a Vivo T3x (lock-screen overlay
+verified working; the home-screen "banner without opening the app" behavior
+and the permission fallback were reworked from that feedback and still need a
+re-verify pass).
 
 Every feature above was exercised end-to-end on a Pixel 10 Pro emulator
 (API 37, Google APIs + Play Store image) — not just compiled, actually run
@@ -251,6 +273,31 @@ not evidence of an app bug, since the same detector class is proven live by
 the in-Settings test dialog), real speech input to the voice flow, a real
 photographed receipt for OCR, and completing the Restore/Import file pickers
 end-to-end. These should get a pass on a physical device before shipping.
+
+## Progress log
+
+- **2026-09-05 — Shake-to-add rebuilt as a true system overlay (Android 10+
+  fix).** Shaking on the home screen used to call `startActivity()` from the
+  background service, which Android 10+ silently blocks — so only the service
+  notification ever appeared, and when a fallback activity did open, the app
+  itself came to the foreground instead of a floating card (device feedback:
+  lock screen worked, home screen opened the app, and a notification fired on
+  every shake). Now:
+  - The service pops `QuickAddBannerView` straight into a system overlay
+    window (`QuickAddOverlay`, `TYPE_APPLICATION_OVERLAY`) on the home
+    screen, lock screen, or inside other apps — **a shake never opens the
+    app**; there is no fallback activity at all anymore
+    (`QuickAddOverlayActivity` deleted).
+  - Without the "Display over other apps" permission, a shake shows a short
+    toast plus a **one-time** heads-up notification (per service start) that
+    opens the permission toggle — it never auto-fires per shake and never
+    opens the app.
+  - Banner upgraded: drag-handle pill, `✕` close, 3-dot step indicator,
+    currency symbol from the currency setting, soft tonal keypad keys with
+    haptic ticks, category icons, remarks-step summary line ("₹500 · Food"),
+    full-width Done, slide-in/out animations, and tap-outside-to-dismiss.
+  - `README`'s Shake section and `PENDING_TASKS.md`'s checklist updated to
+    match; `assembleDebug` green.
 
 ## What isn't built yet
 

@@ -10,6 +10,10 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Lets the shake-to-add banner pop over other apps / the lock screen as an overlay window. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Wakes the screen when the shake happens while the display is off. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -101,15 +105,6 @@
             android:exported="false"
             android:label="@string/edit_income"
             android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name=".QuickAddOverlayActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:showWhenLocked="true"
-            android:theme="@style/Theme.ExpenseManager.FloatingCard"
-            android:turnScreenOn="true" />
 
         <service
             android:name=".ShakeOverlayService"

@@ -1,25 +1,37 @@
 # Pending Tasks
 
-## Shake-to-add background overlay — needs real-device testing
+## Shake-to-add overlay — needs real-device testing
 
-Implemented but unverified on hardware (no device access during development,
-see commit adding `ShakeOverlayService`/`QuickAddOverlayActivity`). Test on
-the Vivo T3x (Funtouch OS) tomorrow:
+Rebuilt on 2026-09-05 as a true system overlay: `ShakeOverlayService` now pops
+`QuickAddBannerView` directly via `WindowManager`
+(`QuickAddOverlay`, `TYPE_APPLICATION_OVERLAY`) instead of calling
+`startActivity()`, which Android 10+ silently blocks from background services —
+that was the bug where only the service notification ever appeared. A shake
+never opens the app: without the "Display over other apps" permission it just
+toasts and shows a one-time notification that opens the permission toggle
+(the old `QuickAddOverlayActivity` fallback was removed entirely).
+`assembleDebug` passes; verify on the Vivo T3x (Funtouch OS):
 
-- [ ] Settings → enable shake toggle → "shake to test" onboarding dialog
-      shows the "Shake detected" toast.
+- [ ] Settings → enable shake toggle → overlay permission dialog appears;
+      granting it returns from "Display over other apps".
+- [ ] "shake to test" onboarding dialog shows the "Shake detected" toast.
 - [ ] Background notification "Shake to add expense is on" appears after
       enabling (may need to grant notification permission when prompted).
-- [ ] Shake from the **home screen** → quick-add card appears.
-- [ ] Shake from the **lock screen** (both with and without a PIN/pattern set)
-      → card appears; if the lock is secure, confirm what actually happens
-      (card shown before unlock? unlock prompt first? nothing at all?).
-- [ ] Shake **inside another app** (e.g. WhatsApp) → card appears on top,
-      doesn't crash the other app.
+- [ ] Shake from the **home screen** → banner slides in over the launcher
+      (the app itself must NOT open): amount keypad → category → remarks →
+      saved. Tap outside the card or ✕ → banner slides away, no app opened.
+- [ ] With the screen **off**, shake → screen wakes and the banner is on top
+      of the lock screen (test with and without a PIN/pattern set; confirm
+      what a secure lock actually shows).
+- [ ] Shake **inside another app** (e.g. WhatsApp) → banner appears on top,
+      doesn't crash the other app; remarks step opens the system keyboard.
 - [ ] Shake **inside Add Expense / Add Income** → nothing happens (suppressed
       by design).
-- [ ] Save from the quick-add card → expense actually appears in the list
-      with the right amount/category/title.
+- [ ] Save from the banner → expense actually appears in the list with the
+      right amount/category/title; Sheets sync row becomes Pending/Synced.
+- [ ] Without the overlay permission, shake → short toast + a one-time
+      "Allow pop-ups" notification appears (tap → the permission toggle, not
+      the app); shaking again repeats the toast but not the notification.
 - [ ] Leave the toggle on for a while → check Vivo's battery/background app
       management (Settings → Battery → high background power consumption)
       hasn't silently killed the service. If it has, the fix is whitelisting

@@ -356,4 +356,22 @@
     <string name="cat_entertainment">Entertainment</string>
     <string name="cat_education">Education</string>
     <string name="cat_other">Other</string>
+
+    <!-- Shake overlay permission -->
+    <string name="shake_overlay_permission_title">Allow pop-ups</string>
+    <string name="shake_overlay_permission_message">To pop up the quick-add card over other apps and the lock screen, Trackify needs the “Display over other apps” permission. Without it, shaking can’t show the card.</string>
+    <string name="shake_overlay_permission_action">Allow</string>
+    <string name="shake_notif_overlay_body">Tap to allow pop-ups — needed for the quick-add card</string>
+    <string name="shake_overlay_missing_toast">Allow “Display over other apps” for Trackify to use Shake to Add</string>
+
+    <!-- Quick Add Banner (shake-to-add overlay) -->
+    <string name="quick_add_close">✕</string>
+    <string name="quick_add_next">Next</string>
+    <string name="quick_add_amount_title">How much did you spend?</string>
+    <string name="quick_add_amount_placeholder">0</string>
+    <string name="quick_add_key_backspace">⌫</string>
+    <string name="quick_add_done">Done</string>
+    <string name="quick_add_back">‹ Back</string>
+    <string name="quick_add_category_title">Pick a category</string>
+    <string name="quick_add_remarks_title">Anything to note?</string>
 </resources>

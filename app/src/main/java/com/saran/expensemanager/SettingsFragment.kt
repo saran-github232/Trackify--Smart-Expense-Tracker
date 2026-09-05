@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -228,6 +229,7 @@ class SettingsFragment : Fragment() {
             binding.llShakeOptions.visibility = if (checked) View.VISIBLE else View.GONE
             if (checked) {
                 requestNotificationPermissionIfNeeded()
+                requestOverlayPermissionIfNeeded()
                 ShakeOverlayService.start(requireContext())
                 showShakeOnboarding()
             } else {
@@ -244,6 +246,31 @@ class SettingsFragment : Fragment() {
             if (shakePrefs.enabled) ShakeOverlayService.start(requireContext())
         }
         binding.switchVibrate.setOnCheckedChangeListener { _, checked -> shakePrefs.vibrate = checked }
+    }
+
+    /**
+     * The quick-add card can't come from startActivity() on Android 10+ (background-activity-start
+     * restrictions), so it's shown as a system overlay window — which needs "Display over other
+     * apps". Without it, shaking falls back to a plain heads-up notification, so nudge the user
+     * to grant the permission right after enabling the feature.
+     */
+    private fun requestOverlayPermissionIfNeeded() {
+        if (QuickAddOverlay.hasPermission(requireContext())) return
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.shake_overlay_permission_title)
+            .setMessage(R.string.shake_overlay_permission_message)
+            .setPositiveButton(R.string.shake_overlay_permission_action) { _, _ ->
+                runCatching {
+                    startActivity(
+                        Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:${requireContext().packageName}"),
+                        )
+                    )
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun showShakeOnboarding() {
