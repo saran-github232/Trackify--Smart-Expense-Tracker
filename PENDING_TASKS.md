@@ -12,8 +12,11 @@ toasts and shows a one-time notification that opens the permission toggle
 (the old `QuickAddOverlayActivity` fallback was removed entirely).
 `assembleDebug` passes; verify on the Vivo T3x (Funtouch OS):
 
-- [ ] Settings → enable shake toggle → overlay permission dialog appears;
-      granting it returns from "Display over other apps".
+- [ ] Settings → enable shake toggle → the system "Display over other apps"
+      page for Trackify opens **immediately** (no intermediate dialog); flip
+      the single toggle → back in Settings → "Pop-ups allowed" toast +
+      shake-onboarding dialog. Backing out without granting → an explanation
+      dialog with an Allow button reopens the toggle page.
 - [ ] "shake to test" onboarding dialog shows the "Shake detected" toast.
 - [ ] Background notification "Shake to add expense is on" appears after
       enabling (may need to grant notification permission when prompted).

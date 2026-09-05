@@ -77,11 +77,14 @@ Enable it from **Settings → Quick Expense**.
   Remarks stay optional for the same reason (the remarks step flips the
   overlay window to focusable so the keyboard can appear on the home screen
   or inside another app).
-- The overlay needs the **"Display over other apps"** permission — Settings
-  prompts for it right after the toggle is enabled. If it hasn't been granted
-  yet, a shake shows a short toast plus a one-time (per service start)
-  heads-up notification whose tap opens the permission toggle directly —
-  it never opens the app's UI.
+- The overlay needs the **"Display over other apps"** permission. It's a
+  special permission — Android has no runtime allow/deny dialog for it (not
+  even for Google's own apps), so Trackify asks the closest way possible:
+  enabling the toggle **opens the system switch for Trackify immediately**
+  (one tap to allow), coming back without granting re-explains and offers to
+  reopen it, and a confirmation toast appears when granted. Until then, a
+  shake shows a short toast plus a one-time (per service start) heads-up
+  notification whose tap opens the same switch — it never opens the app's UI.
 - Suspended while `AddExpenseActivity`/`AddIncomeActivity` (and their post-save
   interstitial ad) — or the overlay card itself — are on top, via a shared
   `ShakeSuppressor` flag each of those sets in `onResume`/`onPause`, so it can
@@ -276,6 +279,17 @@ end-to-end. These should get a pass on a physical device before shipping.
 
 ## Progress log
 
+- **2026-09-05 — Overlay permission now asked automatically (second device
+  pass).** Real-device feedback: with the overlay permission not yet granted,
+  neither home screen nor lock screen showed the banner, and the only nudge
+  was a notification. "Display over other apps" is a special permission with
+  no runtime allow/deny dialog anywhere on Android, so the flow is now the
+  closest possible to one: enabling the shake toggle **opens Trackify's
+  single system toggle page immediately** (no intermediate dialog), returning
+  with the toggle on shows a "Pop-ups allowed" toast + the shake-onboarding
+  dialog, and returning without granting re-explains and re-offers the
+  toggle. Once granted, the banner works on the home screen and lock screen
+  with no further prompts.
 - **2026-09-05 — Shake-to-add rebuilt as a true system overlay (Android 10+
   fix).** Shaking on the home screen used to call `startActivity()` from the
   background service, which Android 10+ silently blocks — so only the service

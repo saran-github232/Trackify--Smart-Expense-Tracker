@@ -359,8 +359,9 @@
 
     <!-- Shake overlay permission -->
     <string name="shake_overlay_permission_title">Allow pop-ups</string>
-    <string name="shake_overlay_permission_message">To pop up the quick-add card over other apps and the lock screen, Trackify needs the “Display over other apps” permission. Without it, shaking can’t show the card.</string>
+    <string name="shake_overlay_permission_message">To pop up the quick-add card over other apps and the lock screen, Android requires the “Display over other apps” toggle. Trackify is opening it now — just flip it on (one tap), then shake anywhere to add an expense.</string>
     <string name="shake_overlay_permission_action">Allow</string>
+    <string name="shake_overlay_granted_toast">Pop-ups allowed — shake your phone to add an expense ✓</string>
     <string name="shake_notif_overlay_body">Tap to allow pop-ups — needed for the quick-add card</string>
     <string name="shake_overlay_missing_toast">Allow “Display over other apps” for Trackify to use Shake to Add</string>
 

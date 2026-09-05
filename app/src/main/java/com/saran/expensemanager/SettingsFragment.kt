@@ -229,9 +229,15 @@ class SettingsFragment : Fragment() {
             binding.llShakeOptions.visibility = if (checked) View.VISIBLE else View.GONE
             if (checked) {
                 requestNotificationPermissionIfNeeded()
-                requestOverlayPermissionIfNeeded()
                 ShakeOverlayService.start(requireContext())
-                showShakeOnboarding()
+                if (QuickAddOverlay.hasPermission(requireContext())) {
+                    showShakeOnboarding()
+                } else {
+                    // Ask right away: the system page has a single toggle for Trackify — as
+                    // close to a normal allow/deny dialog as Android allows for this special
+                    // permission (it has no runtime dialog by design).
+                    launchOverlayPermissionRequest()
+                }
             } else {
                 ShakeOverlayService.stop(requireContext())
             }
@@ -249,28 +255,38 @@ class SettingsFragment : Fragment() {
     }
 
     /**
-     * The quick-add card can't come from startActivity() on Android 10+ (background-activity-start
-     * restrictions), so it's shown as a system overlay window — which needs "Display over other
-     * apps". Without it, shaking falls back to a plain heads-up notification, so nudge the user
-     * to grant the permission right after enabling the feature.
+     * "Display over other apps" is a special permission: Android has NO runtime allow/deny
+     * dialog for it — not even for Google's own apps — so the closest possible flow is this
+     * app's single system toggle, opened automatically the moment shake is enabled. If the user
+     * comes back without granting, explain why it's needed and offer to reopen the toggle.
      */
-    private fun requestOverlayPermissionIfNeeded() {
-        if (QuickAddOverlay.hasPermission(requireContext())) return
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.shake_overlay_permission_title)
-            .setMessage(R.string.shake_overlay_permission_message)
-            .setPositiveButton(R.string.shake_overlay_permission_action) { _, _ ->
-                runCatching {
-                    startActivity(
-                        Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:${requireContext().packageName}"),
-                        )
-                    )
-                }
+    private val overlayPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (_binding == null) return@registerForActivityResult
+            if (QuickAddOverlay.hasPermission(requireContext())) {
+                Toast.makeText(requireContext(), R.string.shake_overlay_granted_toast, Toast.LENGTH_SHORT).show()
+                showShakeOnboarding()
+            } else {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.shake_overlay_permission_title)
+                    .setMessage(R.string.shake_overlay_permission_message)
+                    .setPositiveButton(R.string.shake_overlay_permission_action) { _, _ ->
+                        launchOverlayPermissionRequest()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+        }
+
+    private fun launchOverlayPermissionRequest() {
+        runCatching {
+            overlayPermissionLauncher.launch(
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${requireContext().packageName}"),
+                )
+            )
+        }
     }
 
     private fun showShakeOnboarding() {
