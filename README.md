@@ -4,6 +4,11 @@ A local-first Android expense & income tracker. All data lives in SQLite on
 your device; nothing is sent anywhere unless you explicitly turn on
 [Google Sheets sync](#google-sheets-sync-optional).
 
+> **Building the Trackify website?** [`WEBSITE_MASTER_PROMPT.md`](WEBSITE_MASTER_PROMPT.md)
+> is the living master spec — every app feature, business rule, data-model column, and
+> design token the web version must match, plus the maintenance rule that keeps it
+> up to date as the app evolves.
+
 ## Features
 
 - **Dashboard** — today/week/month/year totals, category breakdown, 7-day
